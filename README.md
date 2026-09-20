@@ -29,6 +29,10 @@ This repository contains the code for a Streamlit app that visualizes time serie
 
 **Stage 1 review (中文)**: [本阶段实现、数值变化与检查步骤](docs/dev/stage1_review_zh.md)
 
+**Language and appearance**: Switch 中文 / English in the sidebar. Use the top-right menu for Light / Dark / System themes. Application text and charts follow your selection; experiment parameters remain unchanged.
+
+**基础体验补充**：[中英文、亮暗主题与后续常用功能建议](docs/dev/usability_plan_zh.md)。本轮未进入导数板块。
+
 ## Local development
 
 在项目根目录使用已有环境启动：
