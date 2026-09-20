@@ -19,6 +19,10 @@ This repository contains the code for a Streamlit app that visualizes time serie
 
 **Supported methods**: Moving Average, Exponential Moving Average, Savitzky-Golay, LOESS, Gaussian Filter, Kalman Filter
 
+**Extension roadmap (中文)**: [应用分类、代表性算法与分阶段扩展规划](docs/extension_plan_zh.md)
+
+**Development plan (中文)**: [开发顺序、简洁 UI 与模块划分](docs/development_plan_zh.md)
+
 
 ## Datasets
 
@@ -35,6 +39,4 @@ This project uses a mix of real-world and synthetic datasets. Below are the sour
 
 - **Process Anomalies**  
   Synthetic dataset simulating different industrial operating modes and injected anomalies, created for this project.
-
-
 
