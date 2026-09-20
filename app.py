@@ -131,7 +131,7 @@ with left_col:
         col1, col2, col3, col4, col5, col6 = st.columns(6)
 
         with col1:
-            show_ma = st.checkbox("", value=False, key="show_ma")
+            show_ma = st.checkbox("Moving Average", value=False, key="show_ma", label_visibility="collapsed")
             st.markdown(
                 f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["MA"]}"></span>Moving Avg</div>',
                 unsafe_allow_html=True,
@@ -142,7 +142,7 @@ with left_col:
             )
 
         with col2:
-            show_ema = st.checkbox("", value=True, key="show_ema")
+            show_ema = st.checkbox("Exponential Moving Average", value=True, key="show_ema", label_visibility="collapsed")
             st.markdown(
                 f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["EMA"]}"></span>EMA</div>',
                 unsafe_allow_html=True,
@@ -153,7 +153,7 @@ with left_col:
             )
 
         with col3:
-            show_savgol = st.checkbox("", value=False, key="show_sg")
+            show_savgol = st.checkbox("Savitzky-Golay", value=False, key="show_sg", label_visibility="collapsed")
             st.markdown(
                 f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["SavGol"]}"></span>SavGol</div>',
                 unsafe_allow_html=True,
@@ -166,7 +166,7 @@ with left_col:
                                 "Higher = more responsive to structure."))
 
         with col4:
-            show_loess = st.checkbox("", value=False, key="show_loess")
+            show_loess = st.checkbox("LOESS", value=False, key="show_loess", label_visibility="collapsed")
             st.markdown(
                 f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["LOESS"]}"></span>LOESS</div>',
                 unsafe_allow_html=True,
@@ -176,7 +176,7 @@ with left_col:
             )
 
         with col5:
-            show_gauss = st.checkbox("", value=False, key="show_gauss")
+            show_gauss = st.checkbox("Gaussian Filter", value=False, key="show_gauss", label_visibility="collapsed")
             st.markdown(
                 f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["Gaussian"]}"></span>Gaussian</div>',
                 unsafe_allow_html=True,
@@ -186,7 +186,7 @@ with left_col:
             )
 
         with col6:
-            show_kalman = st.checkbox("", value=True, key="show_kf")
+            show_kalman = st.checkbox("Kalman Filter", value=True, key="show_kf", label_visibility="collapsed")
             st.markdown(
                 f'<div class="method-label"><span class="color-dot" style="background-color:{method_colors["Kalman"]}"></span>Kalman</div>',
                 unsafe_allow_html=True,
@@ -300,7 +300,7 @@ fig.update_layout(
 )
 
 with right_col:
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     # --- Diagnostics Table ---
 
@@ -343,7 +343,7 @@ with right_col:
         index=["RPR"],
     )
 
-    st.dataframe(diag_df, use_container_width=False)
+    st.dataframe(diag_df, width="content")
 
     # st.caption(
     #     "**RPR (Roughness Preservation Ratio)** compares jaggedness after smoothing to the original. Lower values mean more smoothing."
