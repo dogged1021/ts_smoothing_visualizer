@@ -1,4 +1,8 @@
 .vscode
 
-/outputs
-dev*/
+
+/outputs/
+/dev-notes/
+
+__pycache__/
+*.py[cod]

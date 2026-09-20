@@ -19,10 +19,34 @@ This repository contains the code for a Streamlit app that visualizes time serie
 
 **Supported methods**: Moving Average, Exponential Moving Average, Savitzky-Golay, LOESS, Gaussian Filter, Kalman Filter
 
-**Extension roadmap (中文)**: [应用分类、代表性算法与分阶段扩展规划](docs/extension_plan_zh.md)
+当前开发版已完成 **A01 随机降噪与稳定读数**：保留六种原有算法，增加后向移动平均、有真值的合成实验、因果方法筛选及 RMSE/MAE。上方动图与在线体验链接属于原始项目，当前开发版请在本地启动。
 
-**Development plan (中文)**: [开发顺序、简洁 UI 与模块划分](docs/development_plan_zh.md)
+**Extension roadmap (中文)**: [应用分类、代表性算法与分阶段扩展规划](docs/dev/extension_plan_zh.md)
 
+**Development plan (中文)**: [开发顺序、简洁 UI 与模块划分](docs/dev/development_plan_zh.md)
+
+**Stage 0 baseline (中文)**: [环境、启动方式、计算基线与已知问题](docs/baseline_stage0/README.md)
+
+**Stage 1 review (中文)**: [本阶段实现、数值变化与检查步骤](docs/dev/stage1_review_zh.md)
+
+## Local development
+
+在项目根目录使用已有环境启动：
+
+```bash
+conda activate ts_filter
+python -m streamlit run app.py --server.address 127.0.0.1 --server.port 8501
+```
+
+浏览器访问 `http://127.0.0.1:8501`；远程开发需转发该端口。新环境使用 `python -m pip install -r requirements.txt` 安装依赖。
+
+运行数值回归与页面交互测试（无需额外测试依赖）：
+
+```bash
+conda run -n ts_filter python -m unittest discover -s tests -v
+```
+
+`app.py` 负责导航；`tslab/` 中的数据、算法、指标和绘图相互分离；`tslab/applications/denoising.py` 组织 A01 实验。后续按应用逐步扩展。
 
 ## Datasets
 
@@ -39,4 +63,3 @@ This project uses a mix of real-world and synthetic datasets. Below are the sour
 
 - **Process Anomalies**  
   Synthetic dataset simulating different industrial operating modes and injected anomalies, created for this project.
-

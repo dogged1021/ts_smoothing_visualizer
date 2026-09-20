@@ -1,0 +1,382 @@
+{
+  "python": "3.12.0",
+  "dependencies": {
+    "streamlit": "1.64.0",
+    "pandas": "3.0.6",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "plotly": "7.1.0",
+    "statsmodels": "0.15.0",
+    "pykalman": "0.11.2"
+  },
+  "app_sha256": "9f83a525fee5daee4d1f597f26a4c5e10ad04dcbd72dfe1d546079d8ab6488bd",
+  "datasets": {
+    "sunspots": {
+      "rows": 600,
+      "csv_sha256": "a7eab2750f005e65a8c38d82b7645d0f128674e0759a25c9cd05c1864301cf3c",
+      "missing_values": 0,
+      "duplicate_timestamps": 0,
+      "strictly_increasing": true,
+      "sampling_intervals_seconds": [
+        86400.0
+      ],
+      "traces": {
+        "Original": {
+          "first": 132.0,
+          "last": 115.0,
+          "mean": 140.85333333333332
+        },
+        "MA": {
+          "first": 86.6,
+          "last": 93.46666666666667,
+          "mean": 140.48222222222222
+        },
+        "EMA": {
+          "first": 132.0,
+          "last": 95.69518935523607,
+          "mean": 141.04729211081087
+        },
+        "SavGol": {
+          "first": 145.70000000000002,
+          "last": 108.14117647058842,
+          "mean": 140.8567873303175
+        },
+        "LOESS": {
+          "first": 119.78194762705584,
+          "last": 116.76174107396051,
+          "mean": 141.1710103708053
+        },
+        "Gaussian": {
+          "first": 133.0,
+          "last": 111.0,
+          "mean": 140.335
+        },
+        "Kalman": {
+          "first": 132.0,
+          "last": 111.05233989219356,
+          "mean": 140.91227444385544
+        }
+      },
+      "displayed_rpr": {
+        "MA": {
+          "RPR": "0.22"
+        },
+        "EMA": {
+          "RPR": "0.20"
+        },
+        "SavGol": {
+          "RPR": "0.48"
+        },
+        "LOESS": {
+          "RPR": "0.13"
+        },
+        "Gaussian": {
+          "RPR": "0.46"
+        },
+        "Kalman": {
+          "RPR": "0.56"
+        }
+      }
+    },
+    "noisy_sine": {
+      "rows": 500,
+      "csv_sha256": "2c505afc936ac2697f1acedb1412bec7f4ea33be1524dc51e24b57c3b9781138",
+      "missing_values": 0,
+      "duplicate_timestamps": 0,
+      "strictly_increasing": true,
+      "sampling_intervals_seconds": [
+        3600.0
+      ],
+      "traces": {
+        "Original": {
+          "first": 0.2483570765056163,
+          "last": -0.6913998654821705,
+          "mean": 0.003418997294323784
+        },
+        "MA": {
+          "first": 0.6675601776589067,
+          "last": -0.7063027920703944,
+          "mean": 0.0014509004576829002
+        },
+        "EMA": {
+          "first": 0.2483570765056163,
+          "last": -0.5486431660120219,
+          "mean": 0.021967296020394194
+        },
+        "SavGol": {
+          "first": 0.07381073981032658,
+          "last": -0.7409597628854051,
+          "mean": 0.0037827702220289403
+        },
+        "LOESS": {
+          "first": 0.5982552476655971,
+          "last": -0.4105324489860308,
+          "mean": -0.0020341199340623214
+        },
+        "Gaussian": {
+          "first": 0.34296820942188366,
+          "last": -0.5814219187560714,
+          "mean": 0.0034189972943237806
+        },
+        "Kalman": {
+          "first": 0.2483570765056163,
+          "last": -0.5798371692855596,
+          "mean": 0.00603571859898913
+        }
+      },
+      "displayed_rpr": {
+        "MA": {
+          "RPR": "0.14"
+        },
+        "EMA": {
+          "RPR": "0.12"
+        },
+        "SavGol": {
+          "RPR": "0.18"
+        },
+        "LOESS": {
+          "RPR": "0.12"
+        },
+        "Gaussian": {
+          "RPR": "0.16"
+        },
+        "Kalman": {
+          "RPR": "0.33"
+        }
+      }
+    },
+    "long_term_weather_rh": {
+      "rows": 1000,
+      "csv_sha256": "0d5b9853e0500f953f66989b11d4e9a70600592e4ff4662acad92a616fc30055",
+      "missing_values": 0,
+      "duplicate_timestamps": 0,
+      "strictly_increasing": true,
+      "sampling_intervals_seconds": [
+        600.0
+      ],
+      "traces": {
+        "Original": {
+          "first": 86.1,
+          "last": 89.0,
+          "mean": 81.99419999999999
+        },
+        "MA": {
+          "first": 87.36,
+          "last": 84.32,
+          "mean": 81.9867
+        },
+        "EMA": {
+          "first": 86.1,
+          "last": 84.39848738401722,
+          "mean": 82.01747179250609
+        },
+        "SavGol": {
+          "first": 85.30617647058827,
+          "last": 89.429705882353,
+          "mean": 81.99444162895973
+        },
+        "LOESS": {
+          "first": 85.59165584483189,
+          "last": 83.83126503908123,
+          "mean": 82.11117935259158
+        },
+        "Gaussian": {
+          "first": 85.72733980637403,
+          "last": 88.47614141542134,
+          "mean": 81.9942
+        },
+        "Kalman": {
+          "first": 86.1,
+          "last": 88.10663517918832,
+          "mean": 81.99077541889015
+        }
+      },
+      "displayed_rpr": {
+        "MA": {
+          "RPR": "0.48"
+        },
+        "EMA": {
+          "RPR": "0.42"
+        },
+        "SavGol": {
+          "RPR": "0.63"
+        },
+        "LOESS": {
+          "RPR": "0.33"
+        },
+        "Gaussian": {
+          "RPR": "0.61"
+        },
+        "Kalman": {
+          "RPR": "0.68"
+        }
+      }
+    },
+    "long_term_weather_wv": {
+      "rows": 1000,
+      "csv_sha256": "f07b4fa3b080b230baaed56858329e223c29018f8845220dc288d7d535abb1a0",
+      "missing_values": 0,
+      "duplicate_timestamps": 0,
+      "strictly_increasing": true,
+      "sampling_intervals_seconds": [
+        600.0
+      ],
+      "traces": {
+        "Original": {
+          "first": 1.02,
+          "last": 0.76,
+          "mean": 1.8602199999999998
+        },
+        "MA": {
+          "first": 0.6786666666666666,
+          "last": 2.037333333333333,
+          "mean": 1.8617359999999998
+        },
+        "EMA": {
+          "first": 1.02,
+          "last": 2.0376679250708714,
+          "mean": 1.8487821839742407
+        },
+        "SavGol": {
+          "first": 0.7036764705882351,
+          "last": 0.8085294117647106,
+          "mean": 1.8603836742081548
+        },
+        "LOESS": {
+          "first": 0.6556466545141413,
+          "last": 2.374315607853409,
+          "mean": 1.8094286884498731
+        },
+        "Gaussian": {
+          "first": 0.753258369919944,
+          "last": 1.1671567095681894,
+          "mean": 1.8602200000000002
+        },
+        "Kalman": {
+          "first": 1.02,
+          "last": 1.238136655439092,
+          "mean": 1.8596847029396193
+        }
+      },
+      "displayed_rpr": {
+        "MA": {
+          "RPR": "0.16"
+        },
+        "EMA": {
+          "RPR": "0.15"
+        },
+        "SavGol": {
+          "RPR": "0.27"
+        },
+        "LOESS": {
+          "RPR": "0.06"
+        },
+        "Gaussian": {
+          "RPR": "0.26"
+        },
+        "Kalman": {
+          "RPR": "0.41"
+        }
+      }
+    },
+    "process_anomalies": {
+      "rows": 1000,
+      "csv_sha256": "74212f847515a1ed84db13bdd1dbc2be9c05c893ae26477a6ce2c1e23382ddb3",
+      "missing_values": 0,
+      "duplicate_timestamps": 0,
+      "strictly_increasing": true,
+      "sampling_intervals_seconds": [
+        60.0
+      ],
+      "traces": {
+        "Original": {
+          "first": 50.99342830602247,
+          "last": 82.57662251610272,
+          "mean": 65.64108975307575
+        },
+        "MA": {
+          "first": 50.02069704866667,
+          "last": 79.8269050262687,
+          "mean": 65.63473422810723
+        },
+        "EMA": {
+          "first": 50.99342830602247,
+          "last": 79.85319388885513,
+          "mean": 65.37656072716415
+        },
+        "SavGol": {
+          "first": 50.39334894501634,
+          "last": 82.67867053031766,
+          "mean": 65.64183706482612
+        },
+        "LOESS": {
+          "first": 50.43050801074177,
+          "last": 79.33991780846813,
+          "mean": 65.29938599739509
+        },
+        "Gaussian": {
+          "first": 50.79821233674353,
+          "last": 81.37799211268549,
+          "mean": 65.64108975307575
+        },
+        "Kalman": {
+          "first": 50.99342830602247,
+          "last": 81.1770826081249,
+          "mean": 65.59370489815204
+        }
+      },
+      "displayed_rpr": {
+        "MA": {
+          "RPR": "0.09"
+        },
+        "EMA": {
+          "RPR": "0.09"
+        },
+        "SavGol": {
+          "RPR": "0.17"
+        },
+        "LOESS": {
+          "RPR": "0.03"
+        },
+        "Gaussian": {
+          "RPR": "0.13"
+        },
+        "Kalman": {
+          "RPR": "0.34"
+        }
+      }
+    }
+  },
+  "interactions": {
+    "all_unchecked": {
+      "chart_traces": 1,
+      "metric_columns": 0
+    },
+    "savgol_window_5_poly_5_unchecked": [
+      "polyorder must be less than window_length."
+    ],
+    "savgol_window_51_length_50_unchecked": [
+      "If mode is 'interp', window_length must be less than or equal to the size of x."
+    ]
+  },
+  "default_sliders": {
+    "Points to display from start of series": 600,
+    "Noisy signal opacity": 0.3,
+    "ma": 15,
+    "ema": 0.1,
+    "sg_win": 15,
+    "sg_poly": 2,
+    "loess": 0.05,
+    "gauss": 2.0,
+    "kf_trans": 0.05,
+    "kf_obs": 0.2
+  },
+  "default_selection": {
+    "show_ma": false,
+    "show_ema": true,
+    "show_sg": false,
+    "show_loess": false,
+    "show_gauss": false,
+    "show_kf": true
+  }
+}
