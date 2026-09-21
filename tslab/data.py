@@ -14,6 +14,7 @@ DATASETS = {
     "过程异常 · Process Anomalies": "process_anomalies",
 }
 SCENARIOS = ("正弦信号", "缓慢趋势", "恒定读数")
+DERIVATIVE_SCENARIOS = ("正弦信号", "二次多项式")
 
 
 def validate_data(frame: pd.DataFrame) -> float:
@@ -61,7 +62,27 @@ def synthetic_signal(
         truth = 0.03 * time + 0.5 * np.sin(2 * np.pi * time / 30)
     elif scenario == "恒定读数":
         truth = np.ones(samples)
+    elif scenario == "二次多项式":
+        truth = 0.1 * time**2 - 0.5 * time + 1
     else:
         raise ValueError("未知的合成场景。")
     values = truth + np.random.default_rng(seed).normal(0, noise, samples)
     return pd.DataFrame({"value": values, "truth": truth}, index=pd.Index(time, name="时间（s）"))
+
+
+def derivative_signal(
+    scenario: str, samples: int = 500, dt: float = 0.05, noise: float = 0.05, seed: int = 42
+) -> pd.DataFrame:
+    """Add analytic derivative truth, in u/s and u/s², to a synthetic signal."""
+    if scenario not in DERIVATIVE_SCENARIOS:
+        raise ValueError("未知的导数实验场景。")
+    frame = synthetic_signal(scenario, samples, dt, noise, seed)
+    time = frame.index.to_numpy()
+    if scenario == "正弦信号":
+        omega = 2 * np.pi / 5
+        frame["d1"] = omega * np.cos(omega * time)
+        frame["d2"] = -(omega**2) * np.sin(omega * time)
+    else:
+        frame["d1"] = 0.2 * time - 0.5
+        frame["d2"] = 0.2
+    return frame

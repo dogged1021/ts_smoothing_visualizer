@@ -4,7 +4,7 @@ from functools import partial
 
 import streamlit as st
 
-from tslab.applications.denoising import render
+from tslab.applications import denoising, derivatives
 from tslab.data import ROOT
 from tslab.i18n import translate
 
@@ -13,7 +13,10 @@ t = partial(translate, language=language)
 st.set_page_config(page_title=t("时间序列实验室"), layout="wide")
 st.markdown(f"<style>{(ROOT / 'styles.css').read_text(encoding='utf-8')}</style>", unsafe_allow_html=True)
 
-APPLICATIONS = {"随机降噪与稳定读数": render}
+APPLICATIONS = {
+    "随机降噪与稳定读数": denoising.render,
+    "导数与变化率估计": derivatives.render,
+}
 
 with st.sidebar:
     st.radio(
@@ -22,9 +25,9 @@ with st.sidebar:
     )
     st.title(t("时间序列实验室"))
     st.caption(t("右上角 ⋮ 菜单可切换 Light / Dark / System 主题。"))
-    st.caption(t("信号恢复与结构保留"))
     application = st.radio(
-        t("应用板块"), list(APPLICATIONS), format_func=t, label_visibility="collapsed", key="application"
+        t("应用板块"), list(APPLICATIONS), format_func=t, key="application"
     )
+    st.caption(t("变化、事件与状态" if application == "导数与变化率估计" else "信号恢复与结构保留"))
 
 APPLICATIONS[application](language=language, theme=st.context.theme.type or "light")

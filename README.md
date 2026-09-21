@@ -19,7 +19,7 @@ This repository contains the code for a Streamlit app that visualizes time serie
 
 **Supported methods**: Moving Average, Exponential Moving Average, Savitzky-Golay, LOESS, Gaussian Filter, Kalman Filter
 
-当前开发版已完成 **A01 随机降噪与稳定读数**：保留六种原有算法，增加后向移动平均、有真值的合成实验、因果方法筛选及 RMSE/MAE。上方动图与在线体验链接属于原始项目，当前开发版请在本地启动。
+当前开发版已完成 **A01 随机降噪与稳定读数**：保留六种原有算法，增加后向移动平均、有真值的合成实验、因果方法筛选及 RMSE/MAE。新增 **A07 导数与变化率估计**：比较直接差分、EMA/Gaussian 后差分和 SavGol 直接求导，以三行共享时间轴显示信号及一阶、二阶导数，并逐阶评价误差。上方动图与在线体验链接属于原始项目，当前开发版请在本地启动。
 
 **Extension roadmap (中文)**: [应用分类、代表性算法与分阶段扩展规划](docs/dev/extension_plan_zh.md)
 
@@ -31,7 +31,9 @@ This repository contains the code for a Streamlit app that visualizes time serie
 
 **Language and appearance**: Switch 中文 / English in the sidebar. Use the top-right menu for Light / Dark / System themes. Application text and charts follow your selection; experiment parameters remain unchanged.
 
-**基础体验补充**：[中英文、亮暗主题与后续常用功能建议](docs/dev/usability_plan_zh.md)。本轮未进入导数板块。
+**基础体验补充**：[中英文、亮暗主题与后续常用功能建议](docs/dev/usability_plan_zh.md)。
+
+**Stage 2 review (中文)**：[导数算法、边界评价与检查步骤](docs/dev/stage2_review_zh.md)
 
 ## Local development
 
@@ -50,7 +52,7 @@ python -m streamlit run app.py --server.address 127.0.0.1 --server.port 8501
 conda run -n ts_filter python -m unittest discover -s tests -v
 ```
 
-`app.py` 负责导航；`tslab/` 中的数据、算法、指标和绘图相互分离；`tslab/applications/denoising.py` 组织 A01 实验。后续按应用逐步扩展。
+`app.py` 负责导航；`tslab/` 中的数据、算法、指标和绘图相互分离；`tslab/applications/denoising.py` 与 `derivatives.py` 分别组织 A01 与 A07 实验。后续按应用逐步扩展。
 
 ## Datasets
 

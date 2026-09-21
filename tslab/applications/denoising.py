@@ -12,16 +12,9 @@ from tslab.data import DATASETS, SCENARIOS, load_dataset, synthetic_signal, vali
 from tslab.i18n import translate
 from tslab.metrics import comparison_metrics
 from tslab.plotting import METHOD_COLORS, error_figure, signal_figure
+from tslab.ui import odd_window
 
 CAUSAL_METHODS = ["MA（后向）", "EMA", "Kalman"]
-
-
-def _odd_window(label: str, size: int, key: str) -> int:
-    options = list(range(3, min(51, size) + 1, 2))
-    if key in st.session_state and st.session_state[key] not in options:
-        st.session_state[key] = options[-1]
-    default = None if key in st.session_state else min(15, options[-1])
-    return st.select_slider(label, options=options, value=default, key=key)
 
 
 def _data_controls(language: str) -> pd.DataFrame:
@@ -61,7 +54,7 @@ def _method_controls(
     with st.expander(t("{name} · 参数", name=t(name)), expanded=False):
         if name in ("MA（居中）", "MA（后向）"):
             center = name == "MA（居中）"
-            window = _odd_window(t("窗口（样本）"), size, "ma_center" if center else "ma_trailing")
+            window = odd_window(t("窗口（样本）"), size, "ma_center" if center else "ma_trailing")
             note = (
                 t("使用未来 {half} 点（{seconds:g} 秒）；两端各 {half} 点窗口不完整，保留空缺。",
                   half=window // 2, seconds=window // 2 * dt)
@@ -77,7 +70,7 @@ def _method_controls(
             )
             result = algorithms.exponential_average(values, alpha, adjust=adjust)
         elif name == "SavGol":
-            window = _odd_window(t("窗口（样本）"), size, "sg_window")
+            window = odd_window(t("窗口（样本）"), size, "sg_window")
             degrees = list(range(1, min(5, window - 1) + 1))
             if "sg_degree" in st.session_state and st.session_state["sg_degree"] not in degrees:
                 st.session_state["sg_degree"] = degrees[-1]

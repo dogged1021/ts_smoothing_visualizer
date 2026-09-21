@@ -3,6 +3,61 @@
 ENGLISH = {
     "时间序列实验室": "Time Series Lab",
     "随机降噪与稳定读数": "Noise reduction & stable readings",
+    "导数与变化率估计": "Derivatives & rates of change",
+    "变化、事件与状态": "Change, events & state",
+    "二次多项式": "Quadratic polynomial",
+    "直接差分": "Finite differences",
+    "EMA 后差分": "EMA + differences",
+    "Gaussian 后差分": "Gaussian + differences",
+    "SavGol 直接求导": "SavGol derivatives",
+    "信号": "Signal",
+    "一阶导数": "First derivative",
+    "二阶导数": "Second derivative",
+    "输出": "Output",
+    "信号 s(t)（u）": "Signal s(t) (u)",
+    "一阶导数（u/s）": "First derivative (u/s)",
+    "二阶导数（u/s²）": "Second derivative (u/s²)",
+    "逐阶误差": "Errors by derivative order",
+    "评价范围": "Evaluation region",
+    "排除窗口边界": "Exclude window boundaries",
+    "所有共同有效点": "All common valid samples",
+    "导数估计至少需要 3 个样本。": "Derivative estimation needs at least three samples.",
+    "采样间隔必须大于 0。": "The sample interval must be positive.",
+    "同时估计一阶和二阶导数时，多项式阶数至少为 2。":
+        "Estimating both first and second derivatives requires a polynomial degree of at least two.",
+    "未知的导数实验场景。": "Unknown derivative scenario.",
+    "评价掩码长度必须与真值一致。": "The evaluation mask must have the same length as the truth.",
+    "输出长度必须与真值一致。": "Estimates must have the same length as the truth.",
+    "EMA 使用固定系数递推；启动影响仍计入评价，没有人为指定稳定时间。":
+        "EMA uses fixed-coefficient recursion. Initialization effects remain included; no settling time is assumed.",
+    "多项式阶数至少为 2；直接估计各阶导数，按真实 Δt 换算单位。端点使用多项式拟合。":
+        "Degree must be at least two. Derivatives use the actual Δt; endpoint estimates use polynomial fits.",
+    "A07 · 比较信号、一阶导数和二阶导数。真值来自解析公式，不由带噪观测差分生成。":
+        "A07 · Compare the signal and its first two derivatives against analytic truth, not differences of noisy data.",
+    "时间单位为秒，幅值单位记为 u；一阶和二阶导数单位分别为 u/s、u/s²。":
+        "Time is in seconds and amplitude in arbitrary units u; derivatives are in u/s and u/s².",
+    "因果模式使用三点后向差分：前两点为空缺；一阶公式为二阶精度，二阶公式为一阶精度。":
+        "Causal mode uses three-point backward stencils with two missing initial samples. "
+        "Accuracy is second order for d1 and first order for d2.",
+    "离线差分采用三点中心公式，两端各一点为空缺；SavGol 和 Gaussian 使用未来样本。":
+        "Offline differences use centered three-point stencils, leaving endpoints missing. "
+        "SavGol and Gaussian also use future samples.",
+    "三行共享时间轴；点击图例可同时隐藏该方法的三条曲线。灰色区域标记所选方法的窗口边界或启动空缺。":
+        "The panels share a time axis. A legend click toggles all three curves for a method. "
+        "Shading marks the selected methods' window boundaries or missing startup samples.",
+    "每一阶在相同的共同有效点上比较；不同阶量纲不同，不合并打分。EMA 初始化影响仍计入。":
+        "Methods share valid samples within each order. Units differ across orders; no combined score is used. "
+        "EMA initialization effects remain included.",
+    "**直接差分**用于展示噪声放大；**平滑后差分**先对观测降噪；**SavGol**从局部多项式直接计算导数。信号平滑得好，不代表导数误差小。":
+        "**Finite differences** expose noise amplification. **Smoothing + differences** first reduces observation noise. "
+        "**SavGol** differentiates local polynomial fits directly. Good signal smoothing does not imply accurate derivatives.",
+    "正弦真值为 s(t)=sin(2πt/5)；多项式真值为 s(t)=0.1t²−0.5t+1。当前只使用光滑合成场景，不在阶跃等不可导点上计算点值导数误差。":
+        "The sine signal is s(t)=sin(2πt/5); the polynomial is s(t)=0.1t²−0.5t+1. "
+        "Only smooth synthetic scenarios are used; pointwise derivative errors at discontinuities are not evaluated.",
+    "边界范围取已选方法的并集：中心差分为两端各 1 点，后向差分为前 2 点，SavGol 为两端各半个窗口，Gaussian 后差分为核半径加 1 点。切换评价范围可查看包含边界估计时的误差变化。":
+        "Boundary regions combine the selected methods: one endpoint sample for centered differences, "
+        "two initial samples for backward differences, half a window at each end for SavGol, and the kernel radius "
+        "plus one for Gaussian + differences. Switch evaluation regions to inspect boundary effects.",
     "信号恢复与结构保留": "Signal recovery & structure preservation",
     "应用板块": "Application",
     "右上角 ⋮ 菜单可切换 Light / Dark / System 主题。":
@@ -81,6 +136,12 @@ ENGLISH = {
     "方法": "Method",
     "有效点数": "Valid samples",
     "原始观测": "Observations",
+    "原始观测以灰色线和前景采样点显示；直接差分的零阶信号就是原始观测，两者重合。":
+        "Observations use a gray line with foreground sample markers. The zeroth-order output of direct "
+        "differences is the original observation, so the two overlap.",
+    "居中离线估计对齐窗口中心，不整体右移；若逐点获取数据，内部点需等待 {samples} 个未来样本（{delay:.3f} 秒）。端点另用多项式拟合。":
+        "Centered offline estimates align with the window center without a global right shift. With streaming data, "
+        "interior estimates require {samples} future samples ({delay:.3f} s). Endpoints use separate polynomial fits.",
     "干净真值": "Ground truth",
     "时间": "Time",
     "时间（s）": "Time (s)",

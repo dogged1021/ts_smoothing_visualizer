@@ -82,3 +82,46 @@ def kalman_filter(
     )
     means, _ = model.filter(array)
     return means[:, 0]
+
+
+def finite_differences(
+    values: ArrayLike, dt: float, *, backward: bool = False
+) -> dict[str, NDArray[np.float64]]:
+    """Estimate derivatives at the sample times; incomplete stencils remain NaN.
+
+    Offline: centered three-point first and second derivatives.
+    Causal: three-point backward derivatives (second-order accurate d1,
+    first-order accurate d2). Both backward stencils are exact for quadratics.
+    """
+    array = _values(values)
+    if len(array) < 3:
+        raise ValueError("导数估计至少需要 3 个样本。")
+    if not np.isfinite(dt) or dt <= 0:
+        raise ValueError("采样间隔必须大于 0。")
+    d1 = np.full(len(array), np.nan)
+    d2 = np.full(len(array), np.nan)
+    second = (array[2:] - 2 * array[1:-1] + array[:-2]) / dt**2
+    if backward:
+        d1[2:] = (3 * array[2:] - 4 * array[1:-1] + array[:-2]) / (2 * dt)
+        d2[2:] = second
+    else:
+        d1[1:-1] = (array[2:] - array[:-2]) / (2 * dt)
+        d2[1:-1] = second
+    return {"signal": array.copy(), "d1": d1, "d2": d2}
+
+
+def savgol_derivatives(
+    values: ArrayLike, dt: float, window: int = 15, degree: int = 3
+) -> dict[str, NDArray[np.float64]]:
+    """Estimate signal and its first two derivatives with local polynomial fits."""
+    if not np.isfinite(dt) or dt <= 0:
+        raise ValueError("采样间隔必须大于 0。")
+    if degree < 2:
+        raise ValueError("同时估计一阶和二阶导数时，多项式阶数至少为 2。")
+    signal = savitzky_golay(values, window, degree)
+    array = _values(values)
+    return {
+        "signal": signal,
+        "d1": savgol_filter(array, window, degree, deriv=1, delta=dt, mode="interp"),
+        "d2": savgol_filter(array, window, degree, deriv=2, delta=dt, mode="interp"),
+    }
