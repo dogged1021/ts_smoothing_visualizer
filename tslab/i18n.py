@@ -1,6 +1,43 @@
 """Presentation-only translations; stored selections and numerical results stay unchanged."""
 
 ENGLISH = {
+    "处理方式": "Processing mode",
+    "模拟实时": "Simulated real time",
+    "仅使用当前及过去数据": "Current and past data only",
+    "使用未来数据": "Uses future data",
+    "无需等待未来帧": "No future-frame wait",
+    "需要固定等待": "Fixed look-ahead",
+    "SG-endpoint": "SG-endpoint",
+    "SG（固定延迟）": "SG (fixed delay)",
+    "逐帧回放已有数据，不接入实时设备。只计算已到达观测；曲线按被估计时刻对齐。":
+        "Replay recorded data frame by frame, without a live device. Only arrived observations are processed;"
+        " estimates align with their target times.",
+    "窗口方法 · 参数": "Window methods · parameters",
+    "窗口方法共用窗口长度；两种 SG 共用阶数，仅求值位置不同。完整窗口形成前不输出。":
+        "Window methods share a window length; both SG methods share the degree and differ only in evaluation"
+        " position. No output before a full window is available.",
+    "修改数据、所选算法或参数会从第一帧重新开始；语言和主题切换保留进度。":
+        "Changing data, methods or parameters restarts at the first frame. Language and theme changes "
+        "preserve progress.",
+    "回到第一帧": "Reset to first frame",
+    "下一帧": "Next frame",
+    "前进 10 帧": "Advance 10 frames",
+    "已到达帧数": "Arrived frames",
+    "等待帧数": "Look-ahead frames",
+    "等待时间（秒）": "Look-ahead (s)",
+    "启动所需帧数": "Startup samples",
+    "最新估计对应时刻": "Latest estimated time",
+    "尚未输出": "No output yet",
+    "已到达 {count}/{total} 帧 · 当前时刻：{time}": "Arrived {count}/{total} frames · Current time: {time}",
+    "竖线为当前到达时刻。等待帧数不含启动过程，也不等于响应滞后；末尾未发布估计保持空缺。":
+        "The vertical line marks the current arrival time. Look-ahead excludes startup and is distinct from "
+        "response lag; unpublished tail estimates remain missing.",
+    "误差和 RPR 仅在已发布结果的共同目标时刻上计算；无共同有效点时留空，不代表零误差。":
+        "Errors and RPR use common target times of published estimates only. Missing metrics mean no common "
+        "valid samples, not zero error.",
+    "等待更多数据形成共同有效点。": "Waiting for more data to obtain common valid samples.",
+    "未知的模拟方法。": "Unknown simulation method.",
+    "模拟窗口必须是至少为 3 的奇数。": "The simulation window must be an odd integer of at least three.",
     "时间序列实验室": "Time Series Lab",
     "随机降噪与稳定读数": "Noise reduction & stable readings",
     "导数与变化率估计": "Derivatives & rates of change",

@@ -26,7 +26,8 @@ class ApplicationTests(unittest.TestCase):
 
     def test_all_bundled_datasets_without_truth(self) -> None:
         self.app.selectbox(key="source").select("内置数据集").run()
-        self.app.multiselect[0].set_value(list(METHOD_COLORS)).run()
+        self.app.multiselect(key="methods_causal").set_value(["MA（后向）", "EMA", "Kalman"])
+        self.app.multiselect(key="methods_offline").set_value(["MA（居中）", "SavGol", "LOWESS", "Gaussian"]).run()
         for label in self.app.selectbox(key="dataset").options:
             with self.subTest(dataset=label):
                 self.app.selectbox(key="dataset").select(label).run()
@@ -37,7 +38,8 @@ class ApplicationTests(unittest.TestCase):
                 self.assertEqual(len(table), 8)
 
     def test_savgol_constraints_follow_window_and_data_size(self) -> None:
-        self.app.multiselect[0].set_value(["SavGol"]).run()
+        self.app.multiselect(key="methods_causal").set_value([])
+        self.app.multiselect(key="methods_offline").set_value(["SavGol"]).run()
         self.app.select_slider(key="sg_degree").set_value(5).run()
         self.app.select_slider(key="sg_window").set_value(5).run()
         self.assertLess(self.app.select_slider(key="sg_degree").value, 5)
@@ -46,13 +48,13 @@ class ApplicationTests(unittest.TestCase):
         self.assertLessEqual(self.app.select_slider(key="sg_window").value, 50)
         self.assertFalse(self.app.exception)
         self.app.number_input(key="samples").set_value(3).run()
-        self.app.multiselect[0].set_value(list(METHOD_COLORS)).run()
+        self.app.multiselect(key="methods_causal").set_value(["MA（后向）", "EMA", "Kalman"])
+        self.app.multiselect(key="methods_offline").set_value(["MA（居中）", "SavGol", "LOWESS", "Gaussian"]).run()
         self.assertFalse(self.app.exception)
         self.assertEqual(self.app.dataframe[0].value["有效点数"].iloc[0], 0)
         self.assertTrue(any("没有共同有效点" in w.value for w in self.app.warning))
 
     def test_causal_mode_and_constant_signal(self) -> None:
-        self.app.radio(key="mode").set_value("仅因果方法").run()
         self.assertEqual(self.app.multiselect[0].options, ["MA（后向）", "EMA", "Kalman"])
         self.app.multiselect[0].set_value(self.app.multiselect[0].options).run()
         self.app.selectbox(key="scenario").select("恒定读数").run()
@@ -65,7 +67,8 @@ class ApplicationTests(unittest.TestCase):
         self.assertFalse(self.app.exception)
 
     def test_empty_lowess_parameter_has_readable_validation(self) -> None:
-        self.app.multiselect[0].set_value(["LOWESS"]).run()
+        self.app.multiselect(key="methods_causal").set_value([])
+        self.app.multiselect(key="methods_offline").set_value(["LOWESS"]).run()
         self.app.run()
         self.app.number_input(key="lowess_fraction").set_value(None).run()
         self.assertFalse(self.app.exception)

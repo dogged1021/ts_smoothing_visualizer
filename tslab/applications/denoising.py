@@ -8,6 +8,7 @@ import streamlit as st
 from numpy.typing import NDArray
 
 from tslab import algorithms
+from tslab.applications import realtime_denoising
 from tslab.data import DATASETS, SCENARIOS, load_dataset, synthetic_signal, validate_data
 from tslab.i18n import translate
 from tslab.metrics import comparison_metrics
@@ -122,6 +123,7 @@ def render(language: str = "zh", theme: str = "light") -> None:
     t = partial(translate, language=language)
     st.title(t("随机降噪与稳定读数"))
     st.caption(t("减少随机抖动，同时观察真实信号的保留程度。A01 · 信号恢复与结构保留"))
+    mode = st.radio(t("处理方式"), ["离线对比", "模拟实时"], format_func=t, horizontal=True, key="mode")
     try:
         frame = _data_controls(language)
         dt = validate_data(frame)
@@ -129,16 +131,18 @@ def render(language: str = "zh", theme: str = "light") -> None:
         st.error(t(str(error)))
         return
     st.caption(t("{count} 个样本 · 采样间隔 {dt:g} 秒 · 等间隔采样", count=len(frame), dt=dt))
-    mode = st.radio(t("使用模式"), ["离线对比", "仅因果方法"], format_func=t, horizontal=True, key="mode")
-    causal = mode == "仅因果方法"
-    st.caption(t(
-        "只使用当前与过去的样本；这是历史记录上的因果计算，并非实时设备接入。"
-        if causal else "可同时对比因果与非因果方法；使用未来信息及边界处理方式见下方说明。"
-    ))
-    selected = st.multiselect(
-        t("对比算法"), CAUSAL_METHODS if causal else list(METHOD_COLORS), format_func=t,
-        default=["EMA", "Kalman"], key="methods_causal" if causal else "methods_offline",
+    if mode == "模拟实时":
+        realtime_denoising.render(frame, dt, language, theme)
+        return
+    left, right = st.columns(2)
+    selected = left.multiselect(
+        t("仅使用当前及过去数据"), CAUSAL_METHODS, format_func=t,
+        default=["EMA", "Kalman"], key="methods_causal",
+    ) + right.multiselect(
+        t("使用未来数据"), [name for name in METHOD_COLORS if name not in CAUSAL_METHODS],
+        format_func=t, default=[], key="methods_offline",
     )
+    st.caption(t("可同时对比因果与非因果方法；使用未来信息及边界处理方式见下方说明。"))
     values = frame["value"].to_numpy(dtype=float)
     truth = frame["truth"].to_numpy(dtype=float) if "truth" in frame else None
     estimates, notes = {}, {}

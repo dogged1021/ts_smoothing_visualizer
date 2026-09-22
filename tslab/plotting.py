@@ -59,7 +59,9 @@ def signal_figure(
 ) -> go.Figure:
     """Compare observations, optional truth and estimates on one time axis."""
     t = partial(translate, language=language)
-    colors = DARK_METHOD_COLORS if theme == "dark" else METHOD_COLORS
+    colors = dict(DARK_METHOD_COLORS if theme == "dark" else METHOD_COLORS)
+    colors.update({"SG-endpoint": "#E5A0D3" if theme == "dark" else "#a23c8c",
+                   "SG（固定延迟）": colors["SavGol"]})
     figure = go.Figure(layout=_theme_layout(theme))
     figure.add_trace(go.Scatter(
         x=time, y=observed, name=t("原始观测"),
@@ -91,7 +93,9 @@ def error_figure(
 ) -> go.Figure:
     """Show signed estimation errors using the same method colors."""
     t = partial(translate, language=language)
-    colors = DARK_METHOD_COLORS if theme == "dark" else METHOD_COLORS
+    colors = dict(DARK_METHOD_COLORS if theme == "dark" else METHOD_COLORS)
+    colors.update({"SG-endpoint": "#E5A0D3" if theme == "dark" else "#a23c8c",
+                   "SG（固定延迟）": colors["SavGol"]})
     figure = go.Figure(layout=_theme_layout(theme))
     for name, values in estimates.items():
         figure.add_trace(go.Scatter(
