@@ -1,6 +1,11 @@
 """Presentation-only translations; stored selections and numerical results stay unchanged."""
 
 ENGLISH = {
+    "后向差分": "Backward differences",
+    "EMA 后向差分": "EMA + backward differences",
+    "后向差分与 EMA 后向差分从第 1 帧输出信号，从第 3 帧输出导数；SG 各阶均等待完整窗口。":
+        "Backward differences and EMA + backward differences publish the signal from frame 1 and derivatives "
+        "from frame 3. SG waits for a complete window for every order.",
     "处理方式": "Processing mode",
     "模拟实时": "Simulated real time",
     "仅使用当前及过去数据": "Current and past data only",

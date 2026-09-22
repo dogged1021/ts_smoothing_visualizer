@@ -10,11 +10,7 @@ from tslab.i18n import translate
 from tslab.metrics import comparison_metrics
 from tslab.plotting import signal_figure
 from tslab.realtime import CAUSAL_METHODS, DELAYED_METHODS, replay_signal
-from tslab.ui import odd_window
-
-
-def _advance(amount: int, size: int) -> None:
-    st.session_state.rt_count = min(size, max(1, st.session_state.get("rt_count", 1) + amount))
+from tslab.ui import odd_window, replay_controls
 
 
 def render(frame: pd.DataFrame, dt: float, language: str, theme: str) -> None:
@@ -55,19 +51,7 @@ def render(frame: pd.DataFrame, dt: float, language: str, theme: str) -> None:
                 t("观测方差 R"), 0.001, 10.0, 0.2, 0.01, key="rt_r",
             )
     settings.update(window=window, degree=degree)
-    signature = (pd.util.hash_pandas_object(frame, index=True).to_numpy().tobytes(), tuple(selected), tuple(settings.items()))
-    # Widget state is cleaned when this page is hidden; the non-widget signature survives.
-    if st.session_state.get("rt_signature") != signature or "rt_count" not in st.session_state:
-        st.session_state.rt_signature = signature
-        st.session_state.rt_count = 1
-    st.caption(t("修改数据、所选算法或参数会从第一帧重新开始；语言和主题切换保留进度。"))
-    reset, step, jump = st.columns(3)
-    reset.button(t("回到第一帧"), on_click=_advance, args=(-len(frame), len(frame)), key="rt_reset")
-    step.button(t("下一帧"), on_click=_advance, args=(1, len(frame)),
-                disabled=st.session_state.rt_count == len(frame), key="rt_step")
-    jump.button(t("前进 10 帧"), on_click=_advance, args=(10, len(frame)),
-                disabled=st.session_state.rt_count == len(frame), key="rt_jump")
-    count = st.slider(t("已到达帧数"), 1, len(frame), key="rt_count")
+    count = replay_controls(frame, selected, settings, "rt", language)
     prefix = frame.iloc[:count]
     values = prefix["value"].to_numpy(dtype=float)
     truth = prefix["truth"].to_numpy(dtype=float) if "truth" in prefix else None

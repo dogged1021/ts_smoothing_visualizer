@@ -7,6 +7,7 @@ import streamlit as st
 from numpy.typing import NDArray
 
 from tslab import algorithms
+from tslab.applications import realtime_derivatives
 from tslab.data import DERIVATIVE_SCENARIOS, derivative_signal
 from tslab.i18n import translate
 from tslab.metrics import derivative_metrics
@@ -54,6 +55,7 @@ def render(language: str = "zh", theme: str = "light") -> None:
     t = partial(translate, language=language)
     st.title(t("导数与变化率估计"))
     st.caption(t("A07 · 比较信号、一阶导数和二阶导数。真值来自解析公式，不由带噪观测差分生成。"))
+    processing = st.radio(t("处理方式"), ["离线对比", "模拟实时"], format_func=t, horizontal=True, key="d_processing")
     scenario = st.selectbox(t("实验场景"), DERIVATIVE_SCENARIOS, format_func=t, key="d_scenario")
     with st.expander(t("数据参数"), expanded=False):
         left, right = st.columns(2)
@@ -67,23 +69,32 @@ def render(language: str = "zh", theme: str = "light") -> None:
     values = frame["value"].to_numpy()
     truth = {"signal": frame["truth"].to_numpy(), "d1": frame["d1"].to_numpy(), "d2": frame["d2"].to_numpy()}
     st.caption(t("时间单位为秒，幅值单位记为 u；一阶和二阶导数单位分别为 u/s、u/s²。"))
-    mode = st.radio(t("使用模式"), ["离线对比", "仅因果方法"], format_func=t, horizontal=True, key="d_mode")
-    causal = mode == "仅因果方法"
-    choices = ["直接差分", "EMA 后差分"] if causal else list(DERIVATIVE_COLORS)
-    selected = st.multiselect(
-        t("对比算法"), choices, format_func=t,
-        default=["直接差分", "EMA 后差分"] if causal else ["直接差分", "SavGol 直接求导"],
-        key="d_methods_causal" if causal else "d_methods_offline",
+    if processing == "模拟实时":
+        realtime_derivatives.render(frame, dt, language, theme)
+        return
+    left, right = st.columns(2)
+    selected = left.multiselect(
+        t("使用未来数据"), list(DERIVATIVE_COLORS), format_func=t,
+        default=["直接差分", "SavGol 直接求导"], key="d_methods_offline",
+    ) + right.multiselect(
+        t("仅使用当前及过去数据"), ["后向差分", "EMA 后向差分"],
+        format_func=t, default=[], key="d_methods_causal",
     )
-    st.caption(t(
-        "因果模式使用三点后向差分：前两点为空缺；一阶公式为二阶精度，二阶公式为一阶精度。"
-        if causal else "离线差分采用三点中心公式，两端各一点为空缺；SavGol 和 Gaussian 使用未来样本。"
-    ))
+    st.caption(t("离线差分采用三点中心公式，两端各一点为空缺；SavGol 和 Gaussian 使用未来样本。"))
+    st.caption(t("因果模式使用三点后向差分：前两点为空缺；一阶公式为二阶精度，二阶公式为一阶精度。"))
     estimates = {}
     boundary = (0, 0)
     for name in selected:
         try:
-            result, margins = _method_controls(name, values, dt, causal, language)
+            causal = name in ("后向差分", "EMA 后向差分")
+            base = {"后向差分": "直接差分", "EMA 后向差分": "EMA 后差分"}.get(name, name)
+            if name == "EMA 后向差分":
+                with st.expander(t("{name} · 参数", name=t(name))):
+                    alpha = st.slider(t("平滑因子 α"), 0.01, 1.0, 0.1, 0.01, key="d_backward_alpha")
+                smooth = algorithms.exponential_average(values, alpha, adjust=False)
+                result, margins = algorithms.finite_differences(smooth, dt, backward=True), (2, 0)
+            else:
+                result, margins = _method_controls(base, values, dt, causal, language)
             estimates[name] = result
             boundary = (max(boundary[0], margins[0]), max(boundary[1], margins[1]))
         except ValueError as error:

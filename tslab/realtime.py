@@ -58,3 +58,35 @@ def replay_signal(
             mean = float(np.mean(samples) if coefficients is None else coefficients @ samples)
         output[arrival - delay] = mean
     return output, delay, startup
+
+
+def replay_derivatives(
+    arrived: ArrayLike, method: str, dt: float, *, window: int = 5, degree: int = 2, alpha: float = 0.1,
+) -> tuple[dict[str, NDArray[np.float64]], int, dict[str, int]]:
+    """Publish signal and derivatives at their target times, without endpoint extrapolation."""
+    values = _values(arrived)
+    if not np.isfinite(dt) or dt <= 0:
+        raise ValueError("采样间隔必须大于 0。")
+    if method in ("SG-endpoint", "SG（固定延迟）"):
+        if not isinstance(degree, (int, np.integer)) or degree < 2:
+            raise ValueError("同时估计一阶和二阶导数时，多项式阶数至少为 2。")
+        signal, delay, startup = replay_signal(values, method, window=window, degree=degree)
+        result = {"signal": signal}
+        for order, key in ((1, "d1"), (2, "d2")):
+            coefficients = savgol_coeffs(window, degree, deriv=order, delta=dt,
+                                         pos=window - 1 - delay, use="dot")
+            output = np.full(len(values), np.nan)
+            for arrival in range(window - 1, len(values)):
+                output[arrival - delay] = coefficients @ values[arrival - window + 1:arrival + 1]
+            result[key] = output
+        return result, delay, {key: startup for key in result}
+    if method not in ("后向差分", "EMA 后向差分"):
+        raise ValueError("未知的模拟方法。")
+    signal = replay_signal(values, "EMA", alpha=alpha)[0] if method == "EMA 后向差分" else values.copy()
+    # A prefix of one or two observations is valid, but cannot yet publish derivatives.
+    result = {"signal": signal, "d1": np.full(len(values), np.nan), "d2": np.full(len(values), np.nan)}
+    for arrival in range(2, len(signal)):
+        previous, last, current = signal[arrival - 2:arrival + 1]
+        result["d1"][arrival] = (3 * current - 4 * last + previous) / (2 * dt)
+        result["d2"][arrival] = (current - 2 * last + previous) / dt**2
+    return result, 0, {"signal": 1, "d1": 3, "d2": 3}

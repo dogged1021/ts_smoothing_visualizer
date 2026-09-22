@@ -120,6 +120,13 @@ def derivative_figure(
 ) -> go.Figure:
     """Show signal, d1 and d2 with linked time axes and grouped method legends."""
     t = partial(translate, language=language)
+    colors = dict(DERIVATIVE_COLORS)
+    colors.update({
+        "后向差分": DERIVATIVE_COLORS["直接差分"],
+        "EMA 后向差分": DERIVATIVE_COLORS["EMA 后差分"],
+        "SG-endpoint": ("#a23c8c", "#E5A0D3"),
+        "SG（固定延迟）": DERIVATIVE_COLORS["SavGol 直接求导"],
+    })
     figure = make_subplots(rows=3, cols=1, shared_xaxes=True, vertical_spacing=0.06)
     figure.update_layout(**_theme_layout(theme))
     figure.add_trace(go.Scatter(
@@ -136,7 +143,7 @@ def derivative_figure(
         for name, result in estimates.items():
             figure.add_trace(go.Scatter(
                 x=time, y=result[key], name=t(name), legendgroup=name, showlegend=row == 1,
-                line={"color": DERIVATIVE_COLORS[name][int(theme == "dark")], "width": 1.5},
+                line={"color": colors[name][int(theme == "dark")], "width": 1.5},
                 connectgaps=False,
             ), row=row, col=1)
         figure.update_yaxes(title_text=t(label), row=row, col=1)

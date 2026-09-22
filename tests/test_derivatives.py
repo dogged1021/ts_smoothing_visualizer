@@ -152,10 +152,11 @@ class DerivativeAppTests(unittest.TestCase):
 
     def test_causal_filter_empty_selection_and_navigation(self) -> None:
         with patch("tslab.algorithms.savgol_derivatives", side_effect=AssertionError("Noncausal method executed")):
-            self.app.radio(key="d_mode").set_value("仅因果方法").run()
+            self.app.multiselect(key="d_methods_offline").set_value([])
+            self.app.multiselect(key="d_methods_causal").set_value(["后向差分", "EMA 后向差分"]).run()
         self.assertFalse(self.app.exception)
-        self.assertEqual(self.app.multiselect[0].options, ["直接差分", "EMA 后差分"])
-        self.app.multiselect[0].set_value([]).run()
+        self.assertEqual(self.app.multiselect(key="d_methods_causal").options, ["后向差分", "EMA 后向差分"])
+        self.app.multiselect(key="d_methods_causal").set_value([]).run()
         self.assertFalse(self.app.exception)
         self.assertEqual(len(self.app.dataframe), 0)
         self.assertEqual(len(self.app.get("plotly_chart")), 1)
