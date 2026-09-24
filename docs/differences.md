@@ -27,7 +27,7 @@ $$\hat x'_n=\frac{3x_n-4x_{n-1}+x_{n-2}}{2h},\qquad
 
 [algorithms.py](../tslab/algorithms.py) 的 `finite_differences` 使用 NumPy 数组切片实现上述公式，无额外求导库。返回 `signal`、`d1`、`d2`；直接差分的零阶信号就是原始观测，不代表做了降噪。
 
-A07 离线可比较中心差分、后向差分、EMA 后中心/后向差分、Gaussian 后中心差分及 SG 直接求导。EMA 使用 `adjust=False`；离线 EMA 本身虽因果，接中心差分后整个流程仍使用未来信息。
+A07 离线可比较中心差分、后向差分、EMA 后中心/后向差分、Gaussian 后中心差分、高斯导数核及 SG 直接求导。EMA 使用 `adjust=False`；离线 EMA 本身虽因果，接中心差分后整个流程仍使用未来信息。
 
 [realtime.py](../tslab/realtime.py) 的 `replay_derivatives` 逐帧实现后向差分及 EMA 后向差分；信号从第 1 帧可用，导数从第 3 帧可用。对只有一两帧的输入，导数保持 NaN。SG 两种模拟路线另见 SG 文档；Gaussian 导数模拟尚未实现。
 

@@ -16,7 +16,7 @@ from tslab.ui import odd_window
 
 
 def _method_controls(
-    name: str, values: NDArray[np.float64], dt: float, causal: bool, language: str
+    name: str, values: NDArray[np.float64], dt: float, causal: bool, language: str, sigma: float = 2.0
 ) -> tuple[dict[str, NDArray[np.float64]], tuple[int, int]]:
     t = partial(translate, language=language)
     boundary = (2, 0) if causal else (1, 1)
@@ -29,10 +29,13 @@ def _method_controls(
             smooth = algorithms.exponential_average(values, alpha, adjust=False)
             return algorithms.finite_differences(smooth, dt, backward=causal), boundary
         if name == "Gaussian 后差分":
-            sigma = st.slider(t("σ（样本）"), 0.1, 10.0, 2.0, 0.1, key="d_sigma")
             smooth = algorithms.gaussian_average(values, sigma)
             margin = int(4 * sigma + 0.5) + 1
             return algorithms.finite_differences(smooth, dt), (margin, margin)
+        if name == "Gaussian 导数核":
+            radius = int(4 * sigma + 0.5)
+            st.caption(t("直接以高斯零阶、一阶、二阶核卷积观测，并按 Δt 换算；边界范围为核半径。"))
+            return algorithms.gaussian_derivatives(values, dt, sigma), (radius, radius)
         if name == "SavGol 直接求导":
             window = odd_window(t("窗口（样本）"), len(values), "d_sg_window")
             degrees = list(range(2, min(5, window - 1) + 1))
@@ -82,6 +85,13 @@ def render(language: str = "zh", theme: str = "light") -> None:
     )
     st.caption(t("离线差分采用三点中心公式，两端各一点为空缺；SavGol 和 Gaussian 使用未来样本。"))
     st.caption(t("因果模式使用三点后向差分：前两点为空缺；一阶公式为二阶精度，二阶公式为一阶精度。"))
+    sigma = 2.0
+    if any(name.startswith("Gaussian") for name in selected):
+        with st.expander(t("Gaussian · 共用参数")):
+            sigma = st.slider(t("σ（样本）"), 0.1, 10.0, 2.0, 0.1, key="d_sigma")
+            st.caption(t("两条 Gaussian 路线共用 σ、4σ 截断与反射边界，零阶位置相同；直接导数核不等于平滑后差分。"))
+            if "Gaussian 导数核" in selected:
+                st.caption(t("采样与截断会产生导数偏差，尤其小 σ 时二阶核可能对常数产生非零输出；本实现保留库原始结果，不做矩修正。"))
     estimates = {}
     boundary = (0, 0)
     for name in selected:
@@ -94,7 +104,7 @@ def render(language: str = "zh", theme: str = "light") -> None:
                 smooth = algorithms.exponential_average(values, alpha, adjust=False)
                 result, margins = algorithms.finite_differences(smooth, dt, backward=True), (2, 0)
             else:
-                result, margins = _method_controls(base, values, dt, causal, language)
+                result, margins = _method_controls(base, values, dt, causal, language, sigma)
             estimates[name] = result
             boundary = (max(boundary[0], margins[0]), max(boundary[1], margins[1]))
         except ValueError as error:

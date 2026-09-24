@@ -125,3 +125,20 @@ def savgol_derivatives(
         "d1": savgol_filter(array, window, degree, deriv=1, delta=dt, mode="interp"),
         "d2": savgol_filter(array, window, degree, deriv=2, delta=dt, mode="interp"),
     }
+
+
+def gaussian_derivatives(values: ArrayLike, dt: float, sigma: float = 2.0) -> dict[str, NDArray[np.float64]]:
+    """Apply sampled Gaussian derivative kernels, with time-unit scaling and reflective edges.
+
+    Keep SciPy's raw truncated kernels: do not silently correct their discrete moments.
+    In particular, the second derivative can leak a constant offset, especially for small sigma.
+    """
+    array = _values(values)
+    if not np.isfinite(dt) or dt <= 0:
+        raise ValueError("采样间隔必须大于 0。")
+    if not np.isfinite(sigma) or sigma <= 0:
+        raise ValueError("sigma 必须大于 0。")
+    return {
+        key: gaussian_filter1d(array, sigma=sigma, order=order, mode="reflect", truncate=4.0) / dt**order
+        for order, key in enumerate(("signal", "d1", "d2"))
+    }

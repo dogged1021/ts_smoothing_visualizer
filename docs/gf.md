@@ -40,8 +40,16 @@ $$
 - 离线：`scipy.ndimage.gaussian_filter1d(float_x, sigma, mode="reflect", truncate=4.0)`，默认 σ=2。核半径约为 4σ，边界用反射延拓；先转浮点，避免整数结果截断。
 - 模拟：用 NumPy 显式构造上式权重、归一化，再与窗口点积。默认 W=5、σ=1，与 SG 共用窗口；**这里按 W 截断，不采用离线的默认 4σ 半径**。
 - 当前到达 n 时，中心发布 n−W//2 的估计，单边发布 n 的估计；未形成完整窗口或未发布位置为 NaN。不反射补齐、不用未来尚未到达数据。
-- A07 离线“Gaussian 后差分”是先平滑再中心差分。高斯导数核以及单边 Gaussian 导数尚未实现。
+- A07 离线“Gaussian 后差分”是先平滑再中心差分。离线“Gaussian 导数核”现已实现，单边 Gaussian 导数与导数核模拟尚未实现。
 
 扩展：库支持 `order=1/2` 的高斯导数卷积，其目标是平滑后信号的导数；换算时间单位需考虑 Δt。不能直接截掉导数核的一半作为单边导数，否则可能破坏“常数求导为零”等约束。
 
 接口依据：[SciPy gaussian_filter1d](https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.gaussian_filter1d.html)。
+
+## A07 直接高斯导数核
+
+`algorithms.gaussian_derivatives` 使用 `gaussian_filter1d(x, sigma, order=d, mode="reflect", truncate=4.0) / dt**d`，d=0、1、2。从同一位置观测直接得到位置、速度、加速度，不先计算平滑位置的差分。
+
+在离线“使用未来数据”中同时选择“Gaussian 导数核”和“Gaussian 后差分”，两者共用 σ（默认 2 个样本）。直接核的边界半宽为 R，平滑后中心差分为 R+1，评价按已选方法共同有效区域进行。
+
+连续高斯求导恒等式不保证离散、截断核满足精确多项式矩条件。小 σ 尤其可能导致二阶常数泄漏，并随 1/Δt² 放大；实现不悄悄减去核均值或做矩修正。其结果也不保证恰等于零阶数组的中心差分。可用不同 σ、正弦和二次多项式观察这些误差。

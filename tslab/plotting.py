@@ -31,6 +31,7 @@ DARK_METHOD_COLORS = {
 }
 
 DERIVATIVE_COLORS = {
+    "Gaussian 导数核": ("#a23c8c", "#E5A0D3"),
     "直接差分": ("#1f77b4", "#7AB8F0"),
     "EMA 后差分": (METHOD_COLORS["EMA"], DARK_METHOD_COLORS["EMA"]),
     "Gaussian 后差分": (METHOD_COLORS["Gaussian"], DARK_METHOD_COLORS["Gaussian"]),

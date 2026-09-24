@@ -1,6 +1,16 @@
 """Presentation-only translations; stored selections and numerical results stay unchanged."""
 
 ENGLISH = {
+    "Gaussian 导数核": "Gaussian derivative kernels",
+    "Gaussian · 共用参数": "Gaussian · shared parameters",
+    "直接以高斯零阶、一阶、二阶核卷积观测，并按 Δt 换算；边界范围为核半径。":
+        "Convolve observations with Gaussian kernels of orders 0, 1 and 2, scaled by Δt. Boundary width is the kernel radius.",
+    "两条 Gaussian 路线共用 σ、4σ 截断与反射边界，零阶位置相同；直接导数核不等于平滑后差分。":
+        "Both Gaussian routes share σ, 4σ truncation and reflective edges, giving identical positions. "
+        "Derivative kernels differ from smoothing followed by differences.",
+    "采样与截断会产生导数偏差，尤其小 σ 时二阶核可能对常数产生非零输出；本实现保留库原始结果，不做矩修正。":
+        "Sampling and truncation cause derivative bias: especially at small σ, the second-order kernel can "
+        "return nonzero values for constants. Raw library results are retained without moment correction.",
     "Gaussian（单边）": "Gaussian (one-sided)",
     "Gaussian（固定延迟）": "Gaussian (fixed delay)",
     "Gaussian 与 SG 共用窗口点数；两种 Gaussian 共用 σ。单边核在当前点权重最大，中心核对称；相同窗口不代表相同平滑强度。":
