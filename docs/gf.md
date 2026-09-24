@@ -1,6 +1,47 @@
-[Gaussian Filter](https://en.wikipedia.org/wiki/Gaussian_filter): Applies a weighted average where weights follow a Gaussian (normal) distribution. Good for reducing noise while still preserving the overall shape of the signal.  
+# Gaussian：按距离加权平均
 
-**Limitations:** Smoothing can blur sharp transitions.
+[算法索引与时间约定](overview.md) · [对照 SG](sg.md)
 
-**Parameters:**
-- `Sigma`: Standard deviation of the Gaussian kernel, which controls the smoothing amount.
+## 原理
+
+给距离估计位置越近的样本越大的权重：
+
+$$
+g_k=\exp[-k^2/(2\sigma^2)],\qquad
+w_k=\frac{g_k}{\sum_j g_j},\qquad
+\hat x_n=\sum_k w_k x_{n-k}.
+$$
+
+σ 的单位在本项目中是“样本”。中心核使用 k=−R,…,R；单边核使用 k=0,…,W−1。权重非负且和为 1，输出是窗口样本的加权平均，不拟合多项式，也不要求噪声一定服从高斯分布。
+
+五点中心核、σ=1 时，权重约为 `[0.0545, 0.2442, 0.4026, 0.2442, 0.0545]`。对 `[4, 1, 0, 1, 4]` 输出约 `0.9243`，而二阶 SG 输出 `0`。**Gaussian 在平均邻域；SG 在恢复局部拟合曲线的值。**
+
+## 变体与时延
+
+| 变体 | 权重位置 | 未来等待 | 主要效果 |
+|---|---|---|---|
+| 中心 Gaussian，W=2R+1 | 中点最大、两侧对称 | R 帧 | 内部线性趋势不偏移，但峰常变宽、变低 |
+| 单边 Gaussian，W 点 | 当前点最大，越早越小 | 0 帧 | 对变化通常有响应滞后 |
+
+本项目单边核是 W 点半高斯权重，不是把对称高斯核整体移到历史窗口。两种模拟实现都收齐 W 点才首次输出。
+
+单边核对线性斜坡的等效滞后为 $\Delta t\sum_k k w_k$；它不代表所有频率或事件都有这个固定时延。
+
+## 优缺点与参数
+
+- 优点：权重直观、输出稳定；正权平均不会超出当前窗口样本的最小值和最大值；单调阶跃不会因该平均本身产生过冲。
+- 缺点：模糊尖峰、阶跃和曲率；不抗离群点；单边形式不能像合适阶数的 SG 那样精确保留斜坡。
+- σ 越大，同一窗口内权重越均匀，逐渐接近 MA；σ 很小时接近直接取求值位置的样本。窗口截断决定实际使用范围，不能只比较 σ 而忽略窗口。
+
+## 本项目实现
+
+源码：[algorithms.py](../tslab/algorithms.py)、[realtime.py](../tslab/realtime.py)。
+
+- 离线：`scipy.ndimage.gaussian_filter1d(float_x, sigma, mode="reflect", truncate=4.0)`，默认 σ=2。核半径约为 4σ，边界用反射延拓；先转浮点，避免整数结果截断。
+- 模拟：用 NumPy 显式构造上式权重、归一化，再与窗口点积。默认 W=5、σ=1，与 SG 共用窗口；**这里按 W 截断，不采用离线的默认 4σ 半径**。
+- 当前到达 n 时，中心发布 n−W//2 的估计，单边发布 n 的估计；未形成完整窗口或未发布位置为 NaN。不反射补齐、不用未来尚未到达数据。
+- A07 离线“Gaussian 后差分”是先平滑再中心差分。高斯导数核以及单边 Gaussian 导数尚未实现。
+
+扩展：库支持 `order=1/2` 的高斯导数卷积，其目标是平滑后信号的导数；换算时间单位需考虑 Δt。不能直接截掉导数核的一半作为单边导数，否则可能破坏“常数求导为零”等约束。
+
+接口依据：[SciPy gaussian_filter1d](https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.gaussian_filter1d.html)。

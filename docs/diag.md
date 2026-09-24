@@ -1,7 +1,26 @@
-**RPR (Roughness Preservation Ratio)**: quantifies how much of the signal’s short-term variation (its “roughness”) is retained after smoothing. It’s based on the total variation (defined as the sum of absolute differences between consecutive values):
+# 评价指标与有效区域
 
-RPR = ∑ |ŷᵢ₊₁ − ŷᵢ| / ∑ |yᵢ₊₁ − yᵢ|
+[算法索引](overview.md) · 实现：[metrics.py](../tslab/metrics.py)
 
-Values near 1 indicate minimal smoothing; values near 0 reflect strong smoothing. Values above 1 can occur if the method increases local variation.
+## 有真值时：RMSE 与 MAE
 
-This metric doesn’t measure whether the shape of the signal is preserved, only how much the jaggedness is reduced. It’s useful for comparing how aggressively different methods smooth the same data.
+在共同有效目标时刻集合 V 上，误差 e_i=估计值−真值：
+
+$$\mathrm{RMSE}=\sqrt{\frac1{|V|}\sum_{i\in V}e_i^2},\qquad
+\mathrm{MAE}=\frac1{|V|}\sum_{i\in V}|e_i|.$$
+
+RMSE 对大误差更敏感。两者单位与被估计量一致，因此信号、一阶导数、二阶导数分别评价，不合成一个分数。内置 CSV 没有干净真值（包括 Noisy Sine），不显示恢复误差。
+
+## RPR：粗糙度保留比例
+
+$$\mathrm{RPR}=\frac{\sum_{i\in P}|\hat x_{i+1}-\hat x_i|}{\sum_{i\in P}|x_{i+1}-x_i|}.$$
+
+P 只包含两端均在共同有效区域的相邻样本对，不跨越空缺。接近 0 表示变化被压低，接近 1 表示总变化接近观测；大于 1 也可能发生。它不判断峰形是否保留，也不判断与真实信号是否接近，不能把越小理解为越好。
+
+## 本项目的比较规则
+
+- A01 所有已选方法及原始观测在相同有限值点计算指标；常数参考导致 RPR 分母为零时留空。
+- A07 每一阶分别取共同有效点，报告 RMSE、MAE 和有效点数，不报告导数 RPR。
+- A07 离线可选排除窗口边界或所有共同有效点；模拟只评价已发布的估计，不额外去掉已发布端点结果。
+- 无共同有效点时指标为 NaN，不代表零误差。中心方法的未发布尾部不参加评价。
+- 相同误差不代表相同可用性：需同时比较未来等待、启动帧数、响应滞后和边界处理。EMA 初始化影响仍计入。

@@ -1,13 +1,32 @@
-This app demonstrates six smoothing techniques commonly used in time series analysis. Each method balances noise reduction and signal preservation in a different way.
+# 算法学习索引
 
-Use the controls to select a dataset, adjust parameters, and compare how each method smooths a noisy signal in real time.
+本项目按任务比较算法：A01 随机降噪与稳定读数、A07 导数与变化率估计；两者均支持离线对比与手动模拟实时。本文及各算法文档对应当前代码，未来规划另见 [开发计划](dev/development_plan_zh.md)。
 
-**Usage**
-- Choose from several preloaded datasets (e.g., Sunspots, Weather, Synthetic)
-- Enable or disable specific smoothing methods
-- Adjust each method’s parameters to see their effect on the signal
-- Compare curves visually and review roughness metrics in the diagnostics table
+| 算法文档 | 核心思想 | 主要调节量 |
+|---|---|---|
+| [MA](ma.md) | 窗口内等权平均 | 窗口点数 |
+| [EMA](ema.md) | 递推平均，历史权重指数衰减 | α、启动归一化 |
+| [SG](sg.md) | 局部多项式最小二乘，读取指定位置的值或导数 | 窗口点数、阶数、求值位置 |
+| [Gaussian](gf.md) | 按距离指定高斯权重后平均 | σ、截断范围、中心/单边 |
+| [LOWESS](loess.md) | 距离加权局部回归与残差稳健重加权 | 邻域比例 |
+| [Kalman](kf.md) | 按状态模型和不确定性融合预测与观测 | Q、R、初始状态 |
+| [有限差分](differences.md) | 用邻近样本的差估计导数 | Δt、中心/后向公式 |
 
-*For an overview of the smoothing techniques, see the accompanying [Medium article](https://medium.com/@dmitriy.bolotov/six-approaches-to-time-series-smoothing-cc3ea9d6b64f).*  
+## 先理解 SG 与 Gaussian
 
-*[View source code on GitHub](https://github.com/dbolotov/ts_smoothing_visualizer)*
+Gaussian 先规定“离得近的权重大”，直接做正权平均；SG 先规定“局部用 p 阶多项式解释”，通过拟合推导出权重，允许负权重。两者虽然最后都可以写成加权和，**权重的来源和要保留的性质不同**。
+
+建议先看 [SG 的五点抛物线例子](sg.md)，再看 [Gaussian 的同数据对照](gf.md)。相同窗口只统一用了多少数据，不统一平滑强度；SG 的阶数也不对应 Gaussian 的 σ。
+
+## 统一时间与比较约定
+
+- 样本记为 x_n，采样间隔 Δt；窗口 W 以样本计，界面通常取奇数 W=2R+1。
+- **因果性**：估计时刻 n 的值是否使用 n 之后的数据。它是具体实现的属性，不是整个算法名称的属性。
+- **未来等待**：中心窗口的结果需要等 R 帧才可用，但画在其目标时刻 n，不能因为曲线未右移就说没有等待。
+- **启动帧数**：从记录开始需收到多少帧才能首次输出。当前模拟窗口方法统一收齐 W 帧，不用外推补启动段。
+- **响应滞后**：估计曲线对变化的反应落后。因果方法即使等待为 0，仍可能响应滞后；延迟通常取决于信号和参数。
+- **计算耗时**：运行算法的时间，独立于上述数据等待，不等于界面等待帧数。
+
+离线边界可采用反射或局部拟合；模拟中未发布结果保持 NaN，且不会随未来数据回写。模拟只把已到达前缀传入计算，当前是手动回放已有数据，不是实时设备接入。
+
+项目要求一维、有限值、等间隔采样，不自动补缺失。误差要在相同目标时刻比较；指标含义见 [评价说明](diag.md)。原始项目背景：[Six Approaches to Time Series Smoothing](https://medium.com/@dmitriy.bolotov/six-approaches-to-time-series-smoothing-cc3ea9d6b64f)。
