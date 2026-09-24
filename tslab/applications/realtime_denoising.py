@@ -19,13 +19,13 @@ def render(frame: pd.DataFrame, dt: float, language: str, theme: str) -> None:
     st.caption(t("逐帧回放已有数据，不接入实时设备。只计算已到达观测；曲线按被估计时刻对齐。"))
     left, right = st.columns(2)
     selected = left.multiselect(
-        t("无需等待未来帧"), CAUSAL_METHODS, default=["SG-endpoint"], format_func=t, key="rt_causal",
+        t("无需等待未来帧"), CAUSAL_METHODS, default=["SG-endpoint", "Gaussian（单边）"], format_func=t, key="rt_causal",
     ) + right.multiselect(
         t("需要固定等待"), DELAYED_METHODS, default=list(DELAYED_METHODS), format_func=t, key="rt_delayed",
     )
     settings = {}
     window, degree = 5, 2
-    if any(name in selected for name in ("MA（后向）", "SG-endpoint", "SG（固定延迟）")):
+    if any(name in selected for name in ("MA（后向）", "SG-endpoint", "SG（固定延迟）", "Gaussian（单边）", "Gaussian（固定延迟）")):
         with st.expander(t("窗口方法 · 参数")):
             if "rt_window" not in st.session_state:
                 st.session_state.rt_window = min(5, len(frame) if len(frame) % 2 else len(frame) - 1)
@@ -37,6 +37,9 @@ def render(frame: pd.DataFrame, dt: float, language: str, theme: str) -> None:
                 degree = st.select_slider(
                     t("多项式阶数"), list(range(1, maximum + 1)), value=2, key="rt_degree",
                 )
+            if any(name.startswith("Gaussian") for name in selected):
+                settings["sigma"] = st.slider(t("σ（样本）"), 0.1, 10.0, 1.0, 0.1, key="rt_sigma")
+                st.caption(t("Gaussian 与 SG 共用窗口点数；两种 Gaussian 共用 σ。单边核在当前点权重最大，中心核对称；相同窗口不代表相同平滑强度。"))
             st.caption(t("窗口方法共用窗口长度；两种 SG 共用阶数，仅求值位置不同。完整窗口形成前不输出。"))
     if "EMA" in selected:
         with st.expander(t("{name} · 参数", name="EMA")):

@@ -1,6 +1,11 @@
 """Presentation-only translations; stored selections and numerical results stay unchanged."""
 
 ENGLISH = {
+    "Gaussian（单边）": "Gaussian (one-sided)",
+    "Gaussian（固定延迟）": "Gaussian (fixed delay)",
+    "Gaussian 与 SG 共用窗口点数；两种 Gaussian 共用 σ。单边核在当前点权重最大，中心核对称；相同窗口不代表相同平滑强度。":
+        "Gaussian and SG share the sample window; both Gaussian methods share σ. One-sided weights peak at the "
+        "current sample; centered weights are symmetric. Equal windows do not imply equal smoothing strength.",
     "后向差分": "Backward differences",
     "EMA 后向差分": "EMA + backward differences",
     "后向差分与 EMA 后向差分从第 1 帧输出信号，从第 3 帧输出导数；SG 各阶均等待完整窗口。":

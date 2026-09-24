@@ -6,13 +6,13 @@ from scipy.signal import savgol_coeffs
 
 from tslab.algorithms import _values
 
-CAUSAL_METHODS = ("MA（后向）", "EMA", "Kalman", "SG-endpoint")
-DELAYED_METHODS = ("SG（固定延迟）",)
+CAUSAL_METHODS = ("MA（后向）", "EMA", "Kalman", "SG-endpoint", "Gaussian（单边）")
+DELAYED_METHODS = ("SG（固定延迟）", "Gaussian（固定延迟）")
 
 
 def replay_signal(
     arrived: ArrayLike, method: str, *, window: int = 5, degree: int = 2,
-    alpha: float = 0.1, process_variance: float = 0.05, observation_variance: float = 0.2,
+    alpha: float = 0.1, sigma: float = 1.0, process_variance: float = 0.05, observation_variance: float = 0.2,
 ) -> tuple[NDArray[np.float64], int, int]:
     """Return target-aligned estimates, look-ahead frames and startup sample count.
 
@@ -23,7 +23,7 @@ def replay_signal(
     values = _values(arrived)
     if method not in CAUSAL_METHODS + DELAYED_METHODS:
         raise ValueError("未知的模拟方法。")
-    windowed = method in ("MA（后向）", "SG-endpoint", "SG（固定延迟）")
+    windowed = method in ("MA（后向）", "SG-endpoint", "SG（固定延迟）", "Gaussian（单边）", "Gaussian（固定延迟）")
     if windowed and (not isinstance(window, (int, np.integer)) or window < 3 or window % 2 != 1):
         raise ValueError("模拟窗口必须是至少为 3 的奇数。")
     if method.startswith("SG") and (not isinstance(degree, (int, np.integer)) or not 0 <= degree < window):
@@ -35,11 +35,17 @@ def replay_signal(
         or process_variance < 0 or observation_variance <= 0
     ):
         raise ValueError("过程方差 Q 必须非负，观测方差 R 必须大于 0。")
-    delay = window // 2 if method == "SG（固定延迟）" else 0
+    if method.startswith("Gaussian") and (not np.isfinite(sigma) or sigma <= 0):
+        raise ValueError("sigma 必须大于 0。")
+    delay = window // 2 if method in DELAYED_METHODS else 0
     startup = window if windowed else 1
     coefficients = None
     if method.startswith("SG"):
         coefficients = savgol_coeffs(window, degree, pos=window - 1 - delay, use="dot")
+    if method.startswith("Gaussian"):
+        offsets = np.arange(window, dtype=float) - (window - 1 - delay)
+        coefficients = np.exp(-0.5 * (offsets / sigma)**2)
+        coefficients /= coefficients.sum()
     output = np.full(len(values), np.nan)
     mean, variance = values[0], 1.0
     for arrival, value in enumerate(values):

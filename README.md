@@ -35,7 +35,7 @@ This repository contains the code for a Streamlit app that visualizes time serie
 
 **Stage 2 review (中文)**：[导数算法、边界评价与检查步骤](docs/dev/stage2_review_zh.md)
 
-**模拟实时（第一小步）**：A01 已支持分组算法选择、单步/前进 10 帧/回退，以及 SG-endpoint 与固定延迟 SG 对比。[使用与检查说明](docs/dev/realtime_stage1_review_zh.md)。A07 也已接入逐阶导数模拟，见 [第二小步检查说明](docs/dev/realtime_stage2_review_zh.md)。自动播放留到下一小步。
+**模拟实时（第一小步）**：A01 已支持分组算法选择、单步/前进 10 帧/回退，以及 SG-endpoint 与固定延迟 SG 对比。[使用与检查说明](docs/dev/realtime_stage1_review_zh.md)。A07 也已接入逐阶导数模拟，见 [第二小步检查说明](docs/dev/realtime_stage2_review_zh.md)。自动播放暂不开发，保留手动调整进度，优先扩展算法与任务。
 
 ## Local development
 
