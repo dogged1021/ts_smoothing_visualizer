@@ -30,3 +30,5 @@ Gaussian 先规定“离得近的权重大”，直接做正权平均；SG 先�
 离线边界可采用反射或局部拟合；模拟中未发布结果保持 NaN，且不会随未来数据回写。模拟只把已到达前缀传入计算，当前是手动回放已有数据，不是实时设备接入。
 
 项目要求一维、有限值、等间隔采样，不自动补缺失。误差要在相同目标时刻比较；指标含义见 [评价说明](diag.md)。原始项目背景：[Six Approaches to Time Series Smoothing](https://medium.com/@dmitriy.bolotov/six-approaches-to-time-series-smoothing-cc3ea9d6b64f)。
+
+新增方法按 [文档更新标准](dev/documentation_standard_zh.md) 配套独立介绍；下一任务见 [A06 频谱分析与干扰抑制规划](dev/frequency_plan_zh.md)（未实现）。
