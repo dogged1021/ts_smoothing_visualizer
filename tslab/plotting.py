@@ -61,7 +61,9 @@ def signal_figure(
     """Compare observations, optional truth and estimates on one time axis."""
     t = partial(translate, language=language)
     colors = dict(DARK_METHOD_COLORS if theme == "dark" else METHOD_COLORS)
-    colors.update({"SG-endpoint": "#E5A0D3" if theme == "dark" else "#a23c8c",
+    colors.update({"Butterworth（单向）": "#FF96AD" if theme == "dark" else "#b02649",
+                   "Butterworth（双向）": "#A1C963" if theme == "dark" else "#517a18",
+                   "SG-endpoint": "#E5A0D3" if theme == "dark" else "#a23c8c",
                    "SG（固定延迟）": colors["SavGol"],
                    "Gaussian（单边）": "#E3C76A" if theme == "dark" else "#947000",
                    "Gaussian（固定延迟）": colors["Gaussian"]})
@@ -97,7 +99,9 @@ def error_figure(
     """Show signed estimation errors using the same method colors."""
     t = partial(translate, language=language)
     colors = dict(DARK_METHOD_COLORS if theme == "dark" else METHOD_COLORS)
-    colors.update({"SG-endpoint": "#E5A0D3" if theme == "dark" else "#a23c8c",
+    colors.update({"Butterworth（单向）": "#FF96AD" if theme == "dark" else "#b02649",
+                   "Butterworth（双向）": "#A1C963" if theme == "dark" else "#517a18",
+                   "SG-endpoint": "#E5A0D3" if theme == "dark" else "#a23c8c",
                    "SG（固定延迟）": colors["SavGol"],
                    "Gaussian（单边）": "#E3C76A" if theme == "dark" else "#947000",
                    "Gaussian（固定延迟）": colors["Gaussian"]})

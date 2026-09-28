@@ -5,7 +5,7 @@ import pandas as pd
 from numpy.typing import ArrayLike, NDArray
 from pykalman import KalmanFilter
 from scipy.ndimage import gaussian_filter1d
-from scipy.signal import savgol_filter
+from scipy.signal import butter, savgol_filter, sosfilt, sosfilt_zi, sosfiltfilt
 from statsmodels.nonparametric.smoothers_lowess import lowess
 
 
@@ -142,3 +142,23 @@ def gaussian_derivatives(values: ArrayLike, dt: float, sigma: float = 2.0) -> di
         key: gaussian_filter1d(array, sigma=sigma, order=order, mode="reflect", truncate=4.0) / dt**order
         for order, key in enumerate(("signal", "d1", "d2"))
     }
+
+
+def butterworth_lowpass(
+    values: ArrayLike, dt: float, cutoff: float, order: int = 2, *, zero_phase: bool = False,
+) -> NDArray[np.float64]:
+    """Filter in SOS form, using first-sample steady state or offline forward/backward filtering."""
+    array = _values(values)
+    if not np.isfinite(dt) or dt <= 0:
+        raise ValueError("采样间隔必须大于 0。")
+    if not np.isfinite(cutoff) or not 0 < cutoff < 0.5 / dt:
+        raise ValueError("截止频率必须大于 0 且小于 Nyquist 频率。")
+    if not isinstance(order, (int, np.integer)) or not 1 <= order <= 8:
+        raise ValueError("Butterworth 阶数必须为 1 到 8 的整数。")
+    sos = butter(order, cutoff, btype="lowpass", fs=1 / dt, output="sos")
+    if zero_phase:
+        padlen = 3 * (order + 1)
+        if len(array) <= padlen:
+            raise ValueError("双向 Butterworth 数据不足；请增加样本数或降低阶数。")
+        return sosfiltfilt(sos, array, padtype="odd", padlen=padlen)
+    return sosfilt(sos, array, zi=sosfilt_zi(sos) * array[0])[0]

@@ -1,6 +1,33 @@
 """Presentation-only translations; stored selections and numerical results stay unchanged."""
 
 ENGLISH = {
+    "未来等待（帧）": "Future wait (frames)",
+    "低频等效滞后（帧）": "Low-frequency delay (frames)",
+    "低频等效滞后（秒）": "Low-frequency delay (s)",
+    "理论值适用范围": "Scope of theoretical value",
+    "低频稳态近似；不代表所有频率或峰值的延迟。": "Low-frequency steady-state approximation; not the delay of every frequency or peak.",
+    "按目标时刻对齐；内部低频滞后为零，但仍需未来数据。": "Aligned to target times: zero interior low-frequency delay, but future data is required.",
+    "至少一阶拟合时低频极限为零；不保证快速变化无失真。": "With degree at least one, the low-frequency limit is zero; rapid changes may still be distorted.",
+    "EMA 稳态值；归一化权重与首值初始化阶段不适用。": "Steady-state EMA value; not applicable during normalized-weight or first-value startup.",
+    "全段离线；内部零相位不代表边界无误差或实时可用。": "Full-record offline processing; zero interior phase does not remove edge errors or allow live output.",
+    "仅当前随机游走模型的稳态增益近似；启动阶段不同。": "Steady-state gain approximation for this random-walk model only; startup differs.",
+    "Q=0 时增益持续变化，无有限固定稳态滞后。": "At Q=0 the gain keeps changing; no finite fixed steady-state delay.",
+    "数据相关的局部稳健回归，无统一固定群延迟。": "Data-dependent robust local regression; no universal fixed group delay.",
+    "低频等效滞后是相对目标时间的群延迟极限，非计算耗时或未来等待；空值表示无统一有限值。": "Low-frequency delay is the group-delay limit relative to target times, not computation time or future wait. Missing values mean no universal finite value.",
+
+    "Butterworth（单向）": "Butterworth (forward)",
+    "Butterworth（双向）": "Butterworth (forward-backward)",
+    "截止频率必须大于 0 且小于 Nyquist 频率。": "Cutoff must be positive and below the Nyquist frequency.",
+    "Butterworth 阶数必须为 1 到 8 的整数。": "Butterworth order must be an integer from 1 to 8.",
+    "双向 Butterworth 数据不足；请增加样本数或降低阶数。": "Not enough samples for forward-backward Butterworth; increase sample count or lower the order.",
+    "Butterworth · 共用参数": "Butterworth · shared parameters",
+    "截止频率（Hz）": "Cutoff frequency (Hz)",
+    "滤波阶数": "Filter order",
+    "采样率 {fs:g} Hz · Nyquist {nyquist:g} Hz；截止频率对应单向 −3 dB，双向约 −6 dB。": "Sample rate {fs:g} Hz · Nyquist {nyquist:g} Hz; cutoff is −3 dB forward and about −6 dB forward-backward.",
+    "单向首值稳态初始化，不等待未来帧但存在相位滞后；双向使用未来数据并有边界效应，不用于模拟实时。": "Forward filtering uses first-sample steady-state initialization, with phase lag but no future wait. Forward-backward filtering uses future data and has edge effects; it is offline only.",
+    "双向：使用整段数据，幅频响应为单向的平方。": "Forward-backward: uses the full record; magnitude response is the square of the forward response.",
+    "单向：无需未来帧，启动瞬态仍计入指标。": "Forward: no future wait; startup transients remain included in metrics.",
+
     "Gaussian 导数核": "Gaussian derivative kernels",
     "Gaussian · 共用参数": "Gaussian · shared parameters",
     "直接以高斯零阶、一阶、二阶核卷积观测，并按 Δt 换算；边界范围为核半径。":

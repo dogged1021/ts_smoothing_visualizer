@@ -38,3 +38,21 @@ def replay_controls(frame: pd.DataFrame, selected: list[str], settings: dict, pr
     jump.button(t("前进 10 帧"), on_click=_advance_replay, args=(count_key, 10, len(frame)),
                 disabled=st.session_state[count_key] == len(frame), key=f"{prefix}_jump")
     return st.slider(t("已到达帧数"), 1, len(frame), key=count_key)
+
+
+def lowpass_controls(dt: float, prefix: str, language: str) -> tuple[float, int]:
+    """Share cutoff and order across lowpass directions; keep cutoff valid after changing Δt."""
+    t = partial(translate, language=language)
+    nyquist = 0.5 / dt
+    key = f"{prefix}_cutoff"
+    lower, upper = nyquist * 0.001, nyquist * 0.999
+    if key in st.session_state and not lower <= st.session_state[key] <= upper:
+        st.session_state[key] = nyquist * 0.2
+    with st.expander(t("Butterworth · 共用参数")):
+        cutoff = st.number_input(t("截止频率（Hz）"), min_value=lower, max_value=upper,
+                                 value=nyquist * 0.2, format="%.8f", key=key)
+        order = st.slider(t("滤波阶数"), 1, 8, 2, key=f"{prefix}_order")
+        st.caption(t("采样率 {fs:g} Hz · Nyquist {nyquist:g} Hz；截止频率对应单向 −3 dB，双向约 −6 dB。",
+                     fs=1 / dt, nyquist=nyquist))
+        st.caption(t("单向首值稳态初始化，不等待未来帧但存在相位滞后；双向使用未来数据并有边界效应，不用于模拟实时。"))
+    return cutoff, order

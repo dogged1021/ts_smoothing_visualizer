@@ -10,6 +10,8 @@
 | [Gaussian](gf.md) | 按距离指定高斯权重后平均 | σ、截断范围、中心/单边 |
 | [LOWESS](loess.md) | 距离加权局部回归与残差稳健重加权 | 邻域比例 |
 | [Kalman](kf.md) | 按状态模型和不确定性融合预测与观测 | Q、R、初始状态 |
+| [Butterworth 单向低通](butterworth.md) | 按截止频率设计因果低通 | 截止频率 Hz、阶数 |
+| [Butterworth 双向低通](butterworth_bidirectional.md) | 正反向滤波，幅度响应平方 | 共用截止频率与阶数，离线专用 |
 | [有限差分](differences.md) | 用邻近样本的差估计导数 | Δt、中心/后向公式 |
 
 ## 先理解 SG 与 Gaussian
@@ -32,3 +34,5 @@ Gaussian 先规定“离得近的权重大”，直接做正权平均；SG 先�
 项目要求一维、有限值、等间隔采样，不自动补缺失。误差要在相同目标时刻比较；指标含义见 [评价说明](diag.md)。原始项目背景：[Six Approaches to Time Series Smoothing](https://medium.com/@dmitriy.bolotov/six-approaches-to-time-series-smoothing-cc3ea9d6b64f)。
 
 新增方法按 [文档更新标准](dev/documentation_standard_zh.md) 配套独立介绍；下一任务见 [A06 频谱分析与干扰抑制规划](dev/frequency_plan_zh.md)（未实现）。
+
+曲线下方理论滞后的定义和限制见 [理论滞后与未来等待](timing.md)。

@@ -10,7 +10,8 @@ from tslab.i18n import translate
 from tslab.metrics import comparison_metrics
 from tslab.plotting import signal_figure
 from tslab.realtime import CAUSAL_METHODS, DELAYED_METHODS, replay_signal
-from tslab.ui import odd_window, replay_controls
+from tslab.timing import smoothing_timing
+from tslab.ui import odd_window, replay_controls, lowpass_controls
 
 
 def render(frame: pd.DataFrame, dt: float, language: str, theme: str) -> None:
@@ -53,6 +54,9 @@ def render(frame: pd.DataFrame, dt: float, language: str, theme: str) -> None:
             settings["observation_variance"] = st.number_input(
                 t("观测方差 R"), 0.001, 10.0, 0.2, 0.01, key="rt_r",
             )
+    if "Butterworth（单向）" in selected:
+        cutoff, order = lowpass_controls(dt, "rt_lp", language)
+        settings.update(dt=dt, cutoff=cutoff, order=order)
     settings.update(window=window, degree=degree)
     count = replay_controls(frame, selected, settings, "rt", language)
     prefix = frame.iloc[:count]
@@ -63,7 +67,12 @@ def render(frame: pd.DataFrame, dt: float, language: str, theme: str) -> None:
         result, delay, startup = replay_signal(values, name, **settings)
         estimates[name] = result
         valid = np.flatnonzero(np.isfinite(result))
+        timing_settings = {key: value for key, value in settings.items() if key != "dt"}
+        timing = smoothing_timing(name, dt, **timing_settings)
+        timing.pop("未来等待（帧）")
+        timing["理论值适用范围"] = t(timing["理论值适用范围"])
         rows.append({
+            **{t(key): value for key, value in timing.items()},
             t("方法"): t(name), t("等待帧数"): delay, t("等待时间（秒）"): delay * dt,
             t("启动所需帧数"): startup,
             t("最新估计对应时刻"): str(prefix.index[valid[-1]]) if len(valid) else t("尚未输出"),
@@ -82,6 +91,7 @@ def render(frame: pd.DataFrame, dt: float, language: str, theme: str) -> None:
         st.info(t("请选择至少一种算法进行比较。当前显示原始观测及可用真值。"))
         return
     st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch")
+    st.caption(t("低频等效滞后是相对目标时间的群延迟极限，非计算耗时或未来等待；空值表示无统一有限值。"))
     st.subheader(t("任务指标"))
     table = comparison_metrics(values, estimates, truth)
     st.dataframe(table.rename(index=t, columns=t).rename_axis(t("方法")), width="stretch")

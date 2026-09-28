@@ -4,14 +4,15 @@ import numpy as np
 from numpy.typing import ArrayLike, NDArray
 from scipy.signal import savgol_coeffs
 
-from tslab.algorithms import _values
+from tslab.algorithms import _values, butterworth_lowpass
 
-CAUSAL_METHODS = ("MA（后向）", "EMA", "Kalman", "SG-endpoint", "Gaussian（单边）")
+CAUSAL_METHODS = ("MA（后向）", "EMA", "Kalman", "SG-endpoint", "Gaussian（单边）", "Butterworth（单向）")
 DELAYED_METHODS = ("SG（固定延迟）", "Gaussian（固定延迟）")
 
 
 def replay_signal(
     arrived: ArrayLike, method: str, *, window: int = 5, degree: int = 2,
+    dt: float = 1.0, cutoff: float = 0.1, order: int = 2,
     alpha: float = 0.1, sigma: float = 1.0, process_variance: float = 0.05, observation_variance: float = 0.2,
 ) -> tuple[NDArray[np.float64], int, int]:
     """Return target-aligned estimates, look-ahead frames and startup sample count.
@@ -23,6 +24,8 @@ def replay_signal(
     values = _values(arrived)
     if method not in CAUSAL_METHODS + DELAYED_METHODS:
         raise ValueError("未知的模拟方法。")
+    if method == "Butterworth（单向）":
+        return butterworth_lowpass(values, dt, cutoff, order), 0, 1
     windowed = method in ("MA（后向）", "SG-endpoint", "SG（固定延迟）", "Gaussian（单边）", "Gaussian（固定延迟）")
     if windowed and (not isinstance(window, (int, np.integer)) or window < 3 or window % 2 != 1):
         raise ValueError("模拟窗口必须是至少为 3 的奇数。")

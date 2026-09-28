@@ -55,14 +55,14 @@ class ApplicationTests(unittest.TestCase):
         self.assertTrue(any("没有共同有效点" in w.value for w in self.app.warning))
 
     def test_causal_mode_and_constant_signal(self) -> None:
-        self.assertEqual(self.app.multiselect[0].options, ["MA（后向）", "EMA", "Kalman"])
+        self.assertEqual(self.app.multiselect[0].options, ["MA（后向）", "EMA", "Kalman", "Butterworth（单向）"])
         self.app.multiselect[0].set_value(self.app.multiselect[0].options).run()
         self.app.selectbox(key="scenario").select("恒定读数").run()
         self.app.slider(key="noise").set_value(0.0).run()
         self.assertFalse(self.app.exception)
         table = self.app.dataframe[0].value
         self.assertTrue(table["RPR"].isna().all())
-        self.assertTrue((table["RMSE"] == 0).all())
+        self.assertTrue((table["RMSE"] < 1e-12).all())
         self.app.radio(key="mode").set_value("离线对比").run()
         self.assertFalse(self.app.exception)
 

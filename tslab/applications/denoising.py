@@ -13,9 +13,10 @@ from tslab.data import DATASETS, SCENARIOS, load_dataset, synthetic_signal, vali
 from tslab.i18n import translate
 from tslab.metrics import comparison_metrics
 from tslab.plotting import METHOD_COLORS, error_figure, signal_figure
-from tslab.ui import odd_window
+from tslab.timing import smoothing_timing
+from tslab.ui import odd_window, lowpass_controls
 
-CAUSAL_METHODS = ["MA（后向）", "EMA", "Kalman"]
+CAUSAL_METHODS = ["MA（后向）", "EMA", "Kalman", "Butterworth（单向）"]
 
 
 def _data_controls(language: str) -> pd.DataFrame:
@@ -47,13 +48,17 @@ def _data_controls(language: str) -> pd.DataFrame:
 
 
 def _method_controls(
-    name: str, values: NDArray[np.float64], dt: float, language: str
+    name: str, values: NDArray[np.float64], dt: float, language: str, cutoff: float = 1.0, order: int = 2
 ) -> tuple[NDArray[np.float64], str]:
     """Render one selected method's parameters, then calculate only that method."""
     t = partial(translate, language=language)
     size = len(values)
     with st.expander(t("{name} · 参数", name=t(name)), expanded=False):
-        if name in ("MA（居中）", "MA（后向）"):
+        if name.startswith("Butterworth"):
+            zero_phase = name == "Butterworth（双向）"
+            note = t("双向：使用整段数据，幅频响应为单向的平方。" if zero_phase else "单向：无需未来帧，启动瞬态仍计入指标。")
+            result = algorithms.butterworth_lowpass(values, dt, cutoff, order, zero_phase=zero_phase)
+        elif name in ("MA（居中）", "MA（后向）"):
             center = name == "MA（居中）"
             window = odd_window(t("窗口（样本）"), size, "ma_center" if center else "ma_trailing")
             note = (
@@ -139,16 +144,17 @@ def render(language: str = "zh", theme: str = "light") -> None:
         t("仅使用当前及过去数据"), CAUSAL_METHODS, format_func=t,
         default=["EMA", "Kalman"], key="methods_causal",
     ) + right.multiselect(
-        t("使用未来数据"), [name for name in METHOD_COLORS if name not in CAUSAL_METHODS],
+        t("使用未来数据"), [name for name in METHOD_COLORS if name not in CAUSAL_METHODS] + ["Butterworth（双向）"],
         format_func=t, default=[], key="methods_offline",
     )
     st.caption(t("可同时对比因果与非因果方法；使用未来信息及边界处理方式见下方说明。"))
     values = frame["value"].to_numpy(dtype=float)
     truth = frame["truth"].to_numpy(dtype=float) if "truth" in frame else None
+    cutoff, order = lowpass_controls(dt, "lp", language) if any(n.startswith("Butterworth") for n in selected) else (1.0, 2)
     estimates, notes = {}, {}
     for name in selected:
         try:
-            estimates[name], notes[name] = _method_controls(name, values, dt, language)
+            estimates[name], notes[name] = _method_controls(name, values, dt, language, cutoff, order)
         except ValueError as error:
             st.warning(f"{t(name)}: {t(str(error))}")
     with st.expander(t("显示设置"), expanded=False):
@@ -174,6 +180,19 @@ def render(language: str = "zh", theme: str = "light") -> None:
         "其他方法的边界拟合和初始化区域仍计入。RPR 越低仅表示更平滑；常数参考或没有有效相邻点时显示空值。",
         count=count,
     ))
+    timing_rows = []
+    for name in estimates:
+        window_key = {"MA（居中）": "ma_center", "MA（后向）": "ma_trailing", "SavGol": "sg_window"}.get(name)
+        timing = smoothing_timing(
+            name, dt, window=st.session_state.get(window_key, 15) if window_key else 15,
+            alpha=st.session_state.get("ema_alpha", 0.1), sigma=st.session_state.get("gaussian_sigma", 2.0),
+            cutoff=cutoff, order=order, process_variance=st.session_state.get("kalman_q", 0.05),
+            observation_variance=st.session_state.get("kalman_r", 0.2),
+        )
+        timing["理论值适用范围"] = t(timing["理论值适用范围"])
+        timing_rows.append({t("方法"): t(name), **{t(k): v for k, v in timing.items()}})
+    st.dataframe(pd.DataFrame(timing_rows), hide_index=True, width="stretch")
+    st.caption(t("低频等效滞后是相对目标时间的群延迟极限，非计算耗时或未来等待；空值表示无统一有限值。"))
     with st.expander(t("误差与边界诊断"), expanded=False):
         if truth is not None:
             figure = error_figure(frame.index, estimates, truth, language=language, theme=theme)

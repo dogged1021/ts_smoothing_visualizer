@@ -73,3 +73,5 @@ This project uses a mix of real-world and synthetic datasets. Below are the sour
 
 - **Process Anomalies**  
   Synthetic dataset simulating different industrial operating modes and injected anomalies, created for this project.
+
+A01 新增 [Butterworth 单向低通](docs/butterworth.md) 与 [双向离线低通](docs/butterworth_bidirectional.md)，支持截止频率和阶数调节；单向可参与手动模拟实时。
